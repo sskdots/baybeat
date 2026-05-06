@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Node (in case you add tooling later)
+node_modules/
+npm-debug.log*
+
+# Local secrets (never commit Supabase service role keys)
+.env
+.env.local
+.env.*.local
+
+# Build output (if you ever add a bundler)
+dist/
+build/
+
+# Iterations from earlier in the design process
+foglight.html
+heyday.html
+curio.html

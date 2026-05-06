@@ -1,0 +1,2421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BayBeat — What's open, on, and happening across the Bay Area.</title>
+<meta name="description" content="A curated guide to what's new and fresh across the Bay Area — restaurant openings, concerts, free festivals, pop-ups, and one-night-only happenings from San Francisco to San Jose.">
+<meta name="theme-color" content="#FFFAF0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FFC93C'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23FF5A4D'/%3E%3Ccircle cx='50' cy='50' r='12' fill='%23FFFAF0'/%3E%3C/svg%3E">
+<!-- Open Graph (link previews on Slack, iMessage, Discord, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="BayBeat — What's new across the Bay Area">
+<meta property="og:description" content="Concerts, restaurant openings, free festivals, and pop-ups happening this week across San Francisco, Oakland, Berkeley, Marin, the Peninsula & South Bay.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80">
+<meta property="og:image:alt" content="The Golden Gate Bridge at sunset">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BayBeat — What's new across the Bay Area">
+<meta name="twitter:description" content="A curated guide to fresh events, openings, and happenings across the Bay Area.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
+<!-- Supabase SDK — used for shared encores & shouts when configured -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #FFFAF0;
+    --bg-2: #FFF3DD;
+    --ink: #1A2942;
+    --ink-soft: #4F5D75;
+    --ink-muted: #8B95A9;
+
+    /* Category colors — high contrast, vibrant */
+    --eat: #FF5A4D;        /* coral */
+    --eat-bg: #FFE8E5;
+    --hear: #2DC4B0;       /* teal */
+    --hear-bg: #DDF5F1;
+    --do: #4ECB71;         /* fresh green */
+    --do-bg: #E1F6E7;
+    --shop: #A66BFF;       /* purple */
+    --shop-bg: #EFE5FF;
+    --see: #2D8CFF;        /* bright blue */
+    --see-bg: #DDEBFF;
+
+    /* Accents */
+    --sun: #FFC93C;
+    --pink: #FF4D8D;
+
+    --shadow: 0 4px 18px rgba(26, 41, 66, 0.08);
+    --shadow-lift: 0 10px 32px rgba(26, 41, 66, 0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+  .it { font-style: italic; }
+
+  /* ==================== NAV ==================== */
+  nav {
+    position: sticky; top: 0;
+    background: rgba(255, 250, 240, 0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(26,41,66,0.08);
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1400px; margin: 0 auto;
+    padding: 16px 28px;
+    display: flex; align-items: center; gap: 28px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--eat), var(--sun) 50%, var(--hear));
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(255, 90, 77, 0.25);
+  }
+  .logo-mark::after {
+    content: ""; width: 14px; height: 14px;
+    background: var(--bg); border-radius: 50%;
+  }
+  .logo {
+    color: var(--ink);
+  }
+  .nav-search {
+    flex: 1; max-width: 460px;
+    position: relative;
+  }
+  .nav-search input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border: 1.5px solid rgba(26,41,66,0.1);
+    background: var(--bg);
+    border-radius: 999px;
+    font-family: inherit; font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .2s;
+  }
+  .nav-search input:focus { border-color: var(--ink); }
+  .nav-search::before {
+    content: "🔍";
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px; opacity: 0.6;
+  }
+  .nav-links {
+    display: flex; gap: 6px;
+    margin-left: auto;
+  }
+  .nav-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-weight: 600; font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    transition: all .15s;
+  }
+  .nav-links a:hover { background: var(--bg-2); color: var(--ink); }
+  .nav-cta {
+    background: var(--ink); color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    border: none; cursor: pointer;
+    transition: all .15s;
+  }
+  .nav-cta:hover { background: var(--eat); transform: translateY(-1px); }
+
+  /* ==================== HERO ==================== */
+  .hero {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 28px 28px;
+  }
+  .hero-top {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 22px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--eat-bg); color: var(--eat);
+    padding: 6px 12px; border-radius: 999px;
+    font-weight: 700; font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .live-pill::before {
+    content: ""; width: 7px; height: 7px;
+    background: var(--eat); border-radius: 50%;
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(48px, 7vw, 84px);
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin-bottom: 22px;
+  }
+  .hero h1 .highlight {
+    background: linear-gradient(180deg, transparent 0%, transparent 16%, var(--sun) 16%, var(--sun) 96%, transparent 96%);
+    padding: 0 10px;
+    font-style: italic;
+    font-weight: 500;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--eat);
+  }
+  .hero-sub {
+    font-size: 19px; max-width: 680px;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+  }
+  .hero-sub strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ==================== QUICK CHIPS ==================== */
+  .quick-row {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 32px;
+  }
+  .chip {
+    background: white;
+    border: 1.5px solid rgba(26,41,66,0.1);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-weight: 600; font-size: 14px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--ink);
+  }
+  .chip.active {
+    background: var(--ink); color: var(--bg);
+    border-color: var(--ink);
+  }
+  .chip .emoji { font-size: 16px; }
+
+  /* ==================== HERO STATS ==================== */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card .num {
+    font-family: 'Fraunces', serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .stat-card.eat { background: var(--eat-bg); }
+  .stat-card.eat .num { color: var(--eat); }
+  .stat-card.hear { background: var(--hear-bg); }
+  .stat-card.hear .num { color: var(--hear); }
+  .stat-card.do { background: var(--do-bg); }
+  .stat-card.do .num { color: var(--do); }
+  .stat-card.shop { background: var(--shop-bg); }
+  .stat-card.shop .num { color: var(--shop); }
+  .stat-card .corner {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 22px;
+  }
+
+  /* ==================== FEATURED ==================== */
+  .featured-section {
+    max-width: 1400px;
+    margin: 60px auto 0;
+    padding: 0 28px;
+  }
+  .featured-card {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    aspect-ratio: 21 / 9;
+    box-shadow: var(--shadow-lift);
+    cursor: pointer;
+    transition: transform .3s;
+  }
+  .featured-card:hover { transform: translateY(-4px); }
+  .featured-card .photo {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--ink);
+    transition: transform .8s ease;
+  }
+  .featured-card:hover .photo { transform: scale(1.04); }
+  .featured-card .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%);
+  }
+  .featured-card .content {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 40px 44px;
+    color: white;
+  }
+  .featured-card .feat-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--sun); color: var(--ink);
+    padding: 6px 14px; border-radius: 999px;
+    font-weight: 800; font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .featured-card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(32px, 4.5vw, 56px);
+    line-height: 1;
+    margin-bottom: 12px;
+    max-width: 800px;
+  }
+  .featured-card .sub {
+    font-size: 18px;
+    max-width: 700px;
+    margin-bottom: 16px;
+    opacity: 0.95;
+  }
+  .featured-card .meta {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .featured-card .meta span {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  /* ==================== SECTION HEADS ==================== */
+  .section-head {
+    max-width: 1400px;
+    margin: 80px auto 28px;
+    padding: 0 28px;
+  }
+  .head-card {
+    border-radius: 28px;
+    padding: 30px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 22px rgba(26,41,66,0.05);
+  }
+  .head-card.banner-eat   { background: linear-gradient(135deg, var(--eat-bg)   0%, #FFD8D2 100%); }
+  .head-card.banner-hear  { background: linear-gradient(135deg, var(--hear-bg)  0%, #C5EAE3 100%); }
+  .head-card.banner-do    { background: linear-gradient(135deg, var(--do-bg)    0%, #C9EBD4 100%); }
+  .head-card.banner-shop  { background: linear-gradient(135deg, var(--shop-bg)  0%, #DDC9FB 100%); }
+  .head-card.banner-nbhd  { background: linear-gradient(135deg, var(--eat-bg)   0%, var(--hear-bg) 50%, var(--do-bg) 100%); }
+
+  .head-card .left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+    min-width: 260px;
+  }
+  .section-icon {
+    width: 92px; height: 92px;
+    border-radius: 22px;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(26,41,66,0.08);
+  }
+  .section-icon svg { width: 68px; height: 68px; }
+
+  .section-title-block { min-width: 0; flex: 1; }
+  .section-title-block h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 3.2vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .section-title-block p {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.5;
+    max-width: 620px;
+  }
+
+  .head-card .count {
+    font-weight: 700; font-size: 14px;
+    color: var(--ink-soft);
+    background: white;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(26,41,66,0.08);
+    flex-shrink: 0;
+  }
+  .head-card .count strong {
+    color: var(--ink);
+    font-size: 16px;
+    margin-right: 6px;
+  }
+
+  /* ==================== CARD GRID ==================== */
+  .grid-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all .25s ease;
+    display: flex; flex-direction: column;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+  }
+  .card:focus-visible {
+    outline: 3px solid var(--eat);
+    outline-offset: 2px;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .card-photo {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    background: var(--bg-2);
+    overflow: hidden;
+  }
+  .card-photo img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .5s ease;
+    z-index: 1;
+  }
+  .card:hover .card-photo img { transform: scale(1.05); }
+  .card-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.45) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* When the photo fails to load, hide the dark overlay so the fallback looks clean */
+  .card-photo.no-photo::after { display: none; }
+  /* Photo skeleton/loading bg per category */
+  .card.cat-eat .card-photo { background-color: var(--eat-bg); }
+  .card.cat-hear .card-photo { background-color: var(--hear-bg); }
+  .card.cat-see .card-photo { background-color: var(--see-bg); }
+  .card.cat-do .card-photo { background-color: var(--do-bg); }
+  .card.cat-shop .card-photo { background-color: var(--shop-bg); }
+  .photo-fallback {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 88px;
+    z-index: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent);
+  }
+
+  .card-pills {
+    position: absolute; top: 14px; left: 14px; right: 14px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 8px;
+    z-index: 2;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pill.cat-eat { background: var(--eat); color: white; }
+  .pill.cat-hear { background: var(--hear); color: white; }
+  .pill.cat-see { background: var(--see); color: white; }
+  .pill.cat-do { background: var(--do); color: white; }
+  .pill.cat-shop { background: var(--shop); color: white; }
+  .pill.fresh {
+    background: var(--ink); color: var(--sun);
+  }
+  .pill.fresh::before {
+    content: "✨"; font-size: 11px;
+  }
+  .pill.price {
+    background: rgba(255,255,255,0.96);
+    color: var(--ink);
+  }
+  .pill.free {
+    background: var(--sun); color: var(--ink);
+  }
+
+  .card-body {
+    padding: 18px 20px 20px;
+    flex: 1;
+    display: flex; flex-direction: column;
+  }
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .card-hook {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    margin-bottom: 14px;
+    flex: 1;
+  }
+  .card-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(26,41,66,0.08);
+    font-size: 13px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .card-where {
+    display: inline-flex; align-items: center; gap: 5px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .card-when {
+    color: var(--ink);
+    font-weight: 700;
+    background: var(--bg-2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .card-when.fresh { background: var(--sun); }
+
+  /* ==================== CARD ACTIONS (Encores + Shouts) ==================== */
+  .card-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+  .card-actions {
+    display: flex;
+    background: white;
+    border-top: 1px solid rgba(26,41,66,0.08);
+    flex-shrink: 0;
+  }
+  .action-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 6px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all .15s;
+    border-right: 1px solid rgba(26,41,66,0.08);
+  }
+  .action-btn:last-child { border-right: none; }
+  .action-btn:hover {
+    background: var(--bg-2);
+    color: var(--ink);
+  }
+  .action-btn:active { transform: scale(0.96); }
+  .action-btn .icon {
+    font-size: 15px;
+    display: inline-block;
+  }
+  .action-btn.encored {
+    color: var(--eat);
+    background: var(--eat-bg);
+  }
+  .action-btn.bumped .icon {
+    animation: bump 0.45s cubic-bezier(.3,1.6,.4,1);
+  }
+  @keyframes bump {
+    0%, 100% { transform: scale(1) rotate(0); }
+    35% { transform: scale(1.6) rotate(-12deg); }
+    65% { transform: scale(1.2) rotate(8deg); }
+  }
+  .action-label {
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+  .action-btn.encored .action-label,
+  .action-btn:hover .action-label {
+    color: inherit;
+  }
+
+  /* ==================== MODAL (Shouts) ==================== */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(26,41,66,0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-bg.active {
+    display: flex;
+    animation: fadeIn .2s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .modal {
+    background: white;
+    border-radius: 24px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: modalIn .3s cubic-bezier(.3,1.3,.4,1);
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-head {
+    padding: 22px 24px;
+    border-bottom: 1px solid rgba(26,41,66,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .modal-head .modal-title-block { flex: 1; min-width: 0; }
+  .modal-head h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    letter-spacing: -0.015em;
+  }
+  .modal-head p {
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+  .modal-close {
+    background: var(--bg-2);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+  }
+  .modal-close:hover { background: var(--ink); color: white; }
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 24px;
+    min-height: 100px;
+  }
+  .shout {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(26,41,66,0.06);
+  }
+  .shout:last-child { border-bottom: none; }
+  .shout-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .shout-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .shout-time {
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .shout-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+    word-wrap: break-word;
+  }
+  .shouts-empty {
+    text-align: center;
+    padding: 36px 12px;
+    color: var(--ink-muted);
+  }
+  .shouts-empty .ee {
+    font-size: 36px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .shouts-empty .title {
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+  .modal-form {
+    border-top: 1px solid rgba(26,41,66,0.08);
+    padding: 16px 24px 20px;
+    background: var(--bg);
+  }
+  .modal-form input,
+  .modal-form textarea {
+    width: 100%;
+    border: 1.5px solid rgba(26,41,66,0.12);
+    background: white;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    color: var(--ink);
+  }
+  .modal-form input:focus,
+  .modal-form textarea:focus { border-color: var(--ink); }
+  .modal-form input { margin-bottom: 8px; }
+  .modal-form-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .char-count {
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+  .shouts-submit {
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .shouts-submit:hover:not(:disabled) { background: var(--eat); transform: translateY(-1px); }
+  .shouts-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ==================== NEIGHBORHOODS ==================== */
+  .nbhd-section {
+    max-width: 1400px;
+    margin: 80px auto 0;
+    padding: 0 28px;
+  }
+  .nbhd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .nbhd-card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px 20px;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: var(--shadow);
+    font-family: inherit;
+  }
+  .nbhd-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+  }
+  .nbhd-card .nbhd-emoji {
+    font-size: 32px; margin-bottom: 10px;
+  }
+  .nbhd-card .nbhd-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .nbhd-card .nbhd-meta {
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .nbhd-card .nbhd-meta strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .nbhd-card .nbhd-subareas {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(26,41,66,0.08);
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  /* ==================== NEIGHBORHOOD DETAIL VIEW ==================== */
+  .nbhd-detail {
+    display: none;
+    background: var(--bg);
+    position: relative;
+    z-index: 5;
+    min-height: 80vh;
+  }
+  .nbhd-detail.active { display: block; }
+  .nbhd-detail-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 28px 80px;
+  }
+  .nbhd-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1.5px solid rgba(26,41,66,0.12);
+    color: var(--ink);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .18s;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+  }
+  .nbhd-detail-back:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .nbhd-hero {
+    border-radius: 28px;
+    padding: 48px 40px;
+    margin-bottom: 40px;
+    background: linear-gradient(135deg, var(--eat-bg) 0%, var(--hear-bg) 50%, var(--do-bg) 100%);
+    box-shadow: 0 4px 22px rgba(26,41,66,0.06);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .nbhd-hero-emoji {
+    font-size: 88px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .nbhd-hero-text { flex: 1; min-width: 260px; }
+  .nbhd-hero h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(38px, 5vw, 56px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+  }
+  .nbhd-hero p {
+    color: var(--ink-soft);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .nbhd-hero p strong { color: var(--ink); font-weight: 700; }
+
+  .nbhd-group {
+    margin-bottom: 60px;
+  }
+  .nbhd-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 0;
+    margin-bottom: 22px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .nbhd-group-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+  .nbhd-group-count {
+    background: white;
+    border: 1.5px solid rgba(26,41,66,0.1);
+    color: var(--ink-soft);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .nbhd-group-count strong {
+    color: var(--ink);
+    margin-right: 4px;
+  }
+
+  .nbhd-empty {
+    background: white;
+    border-radius: 22px;
+    padding: 60px 30px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .nbhd-empty-emoji { font-size: 56px; margin-bottom: 16px; }
+  .nbhd-empty h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  /* ==================== LIVE FEED ==================== */
+  .live-section {
+    background: var(--ink);
+    color: white;
+    margin-top: 80px;
+    padding: 60px 28px;
+    overflow: hidden;
+  }
+  .live-inner { max-width: 1400px; margin: 0 auto; }
+  .live-head {
+    display: flex; justify-content: space-between; align-items: end;
+    flex-wrap: wrap; gap: 20px;
+    margin-bottom: 32px;
+  }
+  .live-head h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .live-head h2 em {
+    font-style: italic;
+    color: var(--sun);
+  }
+  .live-head p {
+    color: rgba(255,255,255,0.7);
+    font-size: 15px;
+    margin-top: 8px;
+  }
+  .live-stream {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .live-row {
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background .3s, transform .3s;
+    border: 1px solid rgba(255,255,255,0.08);
+    animation: livePop .5s cubic-bezier(.3,1.3,.4,1) both;
+    text-decoration: none;
+    color: inherit;
+  }
+  .live-row:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+  }
+  .live-row.flash { background: rgba(255,201,60,0.18); }
+  @keyframes livePop {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .live-row .live-time {
+    font-size: 11px;
+    color: var(--sun);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .live-row .live-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .live-row .live-where {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+  }
+
+  /* ==================== NEWSLETTER ==================== */
+  .newsletter {
+    max-width: 920px; margin: 80px auto;
+    padding: 60px 28px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--eat-bg) 0%, var(--hear-bg) 50%, var(--do-bg) 100%);
+    border-radius: 32px;
+    margin-left: 28px; margin-right: 28px;
+  }
+  .newsletter h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 3.5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .newsletter h3 em { font-style: italic; color: var(--eat); }
+  .newsletter p {
+    color: var(--ink-soft);
+    font-size: 17px;
+    margin-bottom: 28px;
+  }
+  .newsletter-form {
+    display: flex; max-width: 480px; margin: 0 auto;
+    background: white;
+    border-radius: 999px;
+    padding: 6px;
+    box-shadow: var(--shadow);
+  }
+  .newsletter-form input {
+    flex: 1;
+    padding: 12px 18px;
+    border: none; outline: none;
+    font-family: inherit; font-size: 15px;
+    background: transparent;
+    color: var(--ink);
+  }
+  .newsletter-form button {
+    background: var(--ink); color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .newsletter-form button:hover { background: var(--eat); }
+
+  /* ==================== FOOTER ==================== */
+  footer {
+    padding: 50px 28px 30px;
+    text-align: center;
+    color: var(--ink-soft);
+    border-top: 1px solid rgba(26,41,66,0.08);
+  }
+  footer .ft-logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+  footer p {
+    font-size: 14px;
+    max-width: 600px;
+    margin: 0 auto 20px;
+  }
+  footer .fineprint {
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.7;
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 880px) {
+    .nav-search { display: none; }
+    .nav-links a { display: none; }
+    .nav-links a:nth-child(1) { display: block; }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    .featured-card .content { padding: 24px; }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">
+      <span class="logo-mark"></span>
+      BayBeat
+    </div>
+    <div class="nav-search">
+      <input type="text" placeholder="Search restaurants, concerts, events…" id="searchInput">
+    </div>
+    <div class="nav-links">
+      <a href="#sec-eat">Eat</a>
+      <a href="#sec-hear">Hear</a>
+      <a href="#sec-do">Do</a>
+      <a href="#sec-shop">Shop</a>
+      <a href="#nbhd">Map</a>
+    </div>
+    <button class="nav-cta">Get the daily ↓</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-top">
+    <span class="live-pill" id="livePillTop">Live · loading…</span>
+    <span>·</span>
+    <span>Tuesday, May 5, 2026</span>
+  </div>
+  <h1 class="serif">
+    What's <em>happening</em> around the<br>
+    <span class="highlight">Bay Area</span>, right now.
+  </h1>
+  <p class="hero-sub">
+    Concerts, openings, festivals, and great eats from <strong>Sausalito to San Jose</strong> —
+    sorted by what's new, what's free, and what's happening tonight. Built for everyone in the Bay,
+    not just the people who already know.
+  </p>
+
+  <div class="quick-row">
+    <button class="chip active" data-quick="all"><span class="emoji">✨</span> All</button>
+    <button class="chip" data-quick="today"><span class="emoji">🔥</span> Today</button>
+    <button class="chip" data-quick="weekend"><span class="emoji">📅</span> This weekend</button>
+    <button class="chip" data-quick="free"><span class="emoji">🆓</span> Free</button>
+    <button class="chip" data-quick="family"><span class="emoji">👨‍👩‍👧</span> Family-friendly</button>
+    <button class="chip" data-quick="latenight"><span class="emoji">🌙</span> Late night</button>
+    <button class="chip" data-quick="opening"><span class="emoji">🎉</span> Just opened</button>
+    <button class="chip" data-quick="cheap"><span class="emoji">🪙</span> Under $20</button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-card eat">
+      <div class="corner">🍜</div>
+      <div class="num" id="stat-eat">—</div>
+      <div class="label">Restaurants &amp; eats</div>
+    </div>
+    <div class="stat-card hear">
+      <div class="corner">🎶</div>
+      <div class="num" id="stat-hear">—</div>
+      <div class="label">Concerts &amp; shows</div>
+    </div>
+    <div class="stat-card do">
+      <div class="corner">🌳</div>
+      <div class="num" id="stat-do">—</div>
+      <div class="label">Things to do</div>
+    </div>
+    <div class="stat-card shop">
+      <div class="corner">🛍️</div>
+      <div class="num" id="stat-shop">—</div>
+      <div class="label">Stores &amp; openings</div>
+    </div>
+  </div>
+</section>
+
+<!-- NEIGHBORHOOD DETAIL — appears when a neighborhood card is clicked -->
+<section class="nbhd-detail" id="nbhdDetail">
+  <div class="nbhd-detail-inner">
+    <button class="nbhd-detail-back" onclick="closeNeighborhoodDetail()">← Back to all events</button>
+    <div class="nbhd-hero">
+      <div class="nbhd-hero-emoji" id="ndEmoji">🌉</div>
+      <div class="nbhd-hero-text">
+        <h2 id="ndTitle">Neighborhood</h2>
+        <p id="ndSummary"></p>
+        <p id="ndSubAreas" style="margin-top: 8px; font-size: 14px;"></p>
+      </div>
+    </div>
+    <div id="ndGroups"></div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<section class="featured-section">
+  <div class="featured-card" id="featuredCard">
+    <div class="photo" id="featuredPhoto"></div>
+    <div class="overlay"></div>
+    <div class="content">
+      <div class="feat-pill">⭐ Tonight's pick</div>
+      <h2 class="serif">Lake Merritt Lantern Festival</h2>
+      <p class="sub">1,400 floating lanterns, drum corps, and Vietnamese street food around Oakland's heart. Free to wander, $8 to launch your own.</p>
+      <div class="meta">
+        <span>📍 Lake Merritt, Oakland</span>
+        <span>🕖 Tonight, 7pm</span>
+        <span>🆓 Free entry</span>
+        <span>👨‍👩‍👧 All ages</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EAT & DRINK -->
+<section id="sec-eat">
+  <div class="section-head">
+    <div class="head-card banner-eat">
+      <div class="left">
+        <div class="section-icon">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Steam -->
+            <path d="M28 14 Q31 9 28 4" stroke="#8B95A9" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <path d="M40 12 Q43 7 40 2" stroke="#8B95A9" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <path d="M52 14 Q55 9 52 4" stroke="#8B95A9" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+            <!-- Chopsticks behind -->
+            <line x1="58" y1="20" x2="74" y2="8" stroke="#8B6F4E" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="62" y1="22" x2="78" y2="10" stroke="#8B6F4E" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Bowl shadow/depth -->
+            <ellipse cx="40" cy="52" rx="32" ry="22" fill="#D8392B"/>
+            <!-- Bowl rim -->
+            <ellipse cx="40" cy="44" rx="32" ry="8" fill="#FF5A4D"/>
+            <ellipse cx="40" cy="44" rx="28" ry="6" fill="#FFC93C"/>
+            <!-- Broth -->
+            <ellipse cx="40" cy="44" rx="26" ry="5" fill="#E8A82E"/>
+            <!-- Noodles -->
+            <path d="M18 44 Q24 41 30 44 T42 44 T54 44 T62 44" stroke="#FFFAF0" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <path d="M19 47 Q25 44 31 47 T43 47 T55 47 T62 47" stroke="#FFFAF0" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.85"/>
+            <!-- Egg (half-cut) -->
+            <ellipse cx="28" cy="44" rx="6" ry="4.5" fill="white"/>
+            <ellipse cx="28" cy="44" rx="3" ry="2.4" fill="#FFC93C"/>
+            <!-- Green onion -->
+            <circle cx="48" cy="42.5" r="1.8" fill="#4ECB71"/>
+            <circle cx="52" cy="45" r="1.5" fill="#4ECB71"/>
+            <circle cx="44" cy="46" r="1.3" fill="#4ECB71"/>
+            <circle cx="50" cy="47" r="1.2" fill="#4ECB71"/>
+          </svg>
+        </div>
+        <div class="section-title-block">
+          <h2>Eat &amp; Drink</h2>
+          <p>New restaurants, taquerias, izakayas, oyster bars, and the kind of spots your friend won't shut up about.</p>
+        </div>
+      </div>
+      <div class="count" id="count-eat"><strong>0</strong> spots this week</div>
+    </div>
+  </div>
+  <div class="grid-section"><div class="grid" data-cat="eat"></div></div>
+</section>
+
+<!-- SEE & HEAR -->
+<section id="sec-hear">
+  <div class="section-head">
+    <div class="head-card banner-hear">
+      <div class="left">
+        <div class="section-icon">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Sound waves outer -->
+            <path d="M10 28 Q4 40 10 52" stroke="#2DC4B0" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.45"/>
+            <path d="M70 28 Q76 40 70 52" stroke="#2DC4B0" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.45"/>
+            <!-- Sound waves inner -->
+            <path d="M16 32 Q12 40 16 48" stroke="#2DC4B0" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.75"/>
+            <path d="M64 32 Q68 40 64 48" stroke="#2DC4B0" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.75"/>
+            <!-- Mic stand base -->
+            <ellipse cx="40" cy="70" rx="16" ry="3" fill="#1A2942"/>
+            <!-- Mic stand pole -->
+            <rect x="38" y="50" width="4" height="20" fill="#1A2942"/>
+            <!-- Mic body shadow -->
+            <rect x="29" y="14" width="22" height="38" rx="11" fill="#0F1B2D"/>
+            <!-- Mic body -->
+            <rect x="28" y="13" width="22" height="36" rx="11" fill="#1A2942"/>
+            <!-- Mic mesh top -->
+            <rect x="30" y="15" width="18" height="18" rx="9" fill="#2DC4B0"/>
+            <!-- Mesh lines -->
+            <line x1="32" y1="20" x2="46" y2="20" stroke="#1A2942" stroke-width="0.8" opacity="0.4"/>
+            <line x1="32" y1="24" x2="46" y2="24" stroke="#1A2942" stroke-width="0.8" opacity="0.4"/>
+            <line x1="32" y1="28" x2="46" y2="28" stroke="#1A2942" stroke-width="0.8" opacity="0.4"/>
+            <!-- Mic shine -->
+            <ellipse cx="35" cy="20" rx="3" ry="6" fill="white" opacity="0.3"/>
+            <!-- Mic body bottom curve -->
+            <path d="M22 38 Q22 52 40 52 Q58 52 58 38" stroke="#1A2942" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- LED indicator -->
+            <circle cx="40" cy="44" r="1.5" fill="#FF5A4D"/>
+          </svg>
+        </div>
+        <div class="section-title-block">
+          <h2>See &amp; Hear</h2>
+          <p>Concerts, screenings, festivals, and one-night-only happenings — from a four-band $12 indie show to a 70mm Singin' in the Rain.</p>
+        </div>
+      </div>
+      <div class="count" id="count-hear"><strong>0</strong> shows this week</div>
+    </div>
+  </div>
+  <div class="grid-section"><div class="grid" data-cat="hear"></div></div>
+</section>
+
+<!-- DO & EXPLORE -->
+<section id="sec-do">
+  <div class="section-head">
+    <div class="head-card banner-do">
+      <div class="left">
+        <div class="section-icon">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Sky -->
+            <rect width="80" height="50" fill="#DDEBFF"/>
+            <!-- Sun -->
+            <circle cx="58" cy="22" r="9" fill="#FFC93C"/>
+            <!-- Sun rays -->
+            <g stroke="#FFC93C" stroke-width="1.6" stroke-linecap="round">
+              <line x1="58" y1="8" x2="58" y2="11"/>
+              <line x1="58" y1="33" x2="58" y2="36"/>
+              <line x1="44" y1="22" x2="47" y2="22"/>
+              <line x1="69" y1="22" x2="72" y2="22"/>
+              <line x1="48" y1="12" x2="50" y2="14"/>
+              <line x1="68" y1="12" x2="66" y2="14"/>
+            </g>
+            <!-- Cloud -->
+            <ellipse cx="14" cy="18" rx="9" ry="3" fill="white" opacity="0.95"/>
+            <ellipse cx="20" cy="16" rx="6" ry="3" fill="white" opacity="0.95"/>
+            <!-- Distant mountain -->
+            <path d="M0 50 L18 28 L36 50 Z" fill="#A6C5E8"/>
+            <!-- Front mountain (large) -->
+            <path d="M10 50 L34 14 L58 50 Z" fill="#4ECB71"/>
+            <!-- Snow cap front mountain -->
+            <path d="M28 22 L34 14 L40 22 L37 24 L34 21 L31 24 Z" fill="white"/>
+            <!-- Right mountain -->
+            <path d="M40 50 L60 22 L80 50 Z" fill="#3BA85A"/>
+            <!-- Snow cap right -->
+            <path d="M55 28 L60 22 L65 28 L62 30 L60 27 L58 30 Z" fill="white"/>
+            <!-- Foreground ground -->
+            <rect y="50" width="80" height="22" fill="#6BCB77"/>
+            <path d="M0 50 Q40 53 80 50" stroke="#3BA85A" stroke-width="1.5" fill="none" opacity="0.5"/>
+            <!-- Tree -->
+            <rect x="13" y="58" width="3" height="9" fill="#6B4A2E"/>
+            <path d="M9 60 L14.5 48 L20 60 Z" fill="#2A8B3F"/>
+            <path d="M10 56 L14.5 46 L19 56 Z" fill="#3BA85A"/>
+            <!-- Hiking trail -->
+            <path d="M30 68 Q40 60 52 56 Q60 53 68 56" stroke="#FFFAF0" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="2 3" opacity="0.85"/>
+            <!-- Bird -->
+            <path d="M44 18 Q46 16 48 18 Q50 16 52 18" stroke="#1A2942" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="section-title-block">
+          <h2>Do &amp; Explore</h2>
+          <p>Walks, sails, tide pools, moonlight gardens, and museum wings — for solo wanderers, families, and out-of-town guests.</p>
+        </div>
+      </div>
+      <div class="count" id="count-do"><strong>0</strong> things to do</div>
+    </div>
+  </div>
+  <div class="grid-section"><div class="grid" data-cat="do"></div></div>
+</section>
+
+<!-- SHOP & VISIT -->
+<section id="sec-shop">
+  <div class="section-head">
+    <div class="head-card banner-shop">
+      <div class="left">
+        <div class="section-icon">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Sidewalk -->
+            <rect y="68" width="80" height="6" fill="#C8B8DA"/>
+            <!-- Store body -->
+            <rect x="8" y="28" width="64" height="40" fill="#A66BFF"/>
+            <!-- Store left wall shadow -->
+            <rect x="8" y="28" width="6" height="40" fill="#8B4FE0" opacity="0.4"/>
+            <!-- Awning back -->
+            <rect x="6" y="22" width="68" height="4" fill="#6B3FB8"/>
+            <!-- Awning stripes (red & white) -->
+            <path d="M6 22 L74 22 L70 33 L10 33 Z" fill="#FF5A4D"/>
+            <path d="M6 22 L18 22 L15 33 L10 33 Z" fill="#FFFFFF"/>
+            <path d="M30 22 L42 22 L39 33 L33 33 Z" fill="#FFFFFF"/>
+            <path d="M54 22 L66 22 L63 33 L57 33 Z" fill="#FFFFFF"/>
+            <!-- Awning bottom edge -->
+            <path d="M10 33 L70 33" stroke="#1A2942" stroke-width="0.8" opacity="0.2"/>
+            <!-- Window left -->
+            <rect x="14" y="40" width="18" height="20" fill="#DDEBFF" stroke="white" stroke-width="2"/>
+            <line x1="23" y1="40" x2="23" y2="60" stroke="white" stroke-width="1.5"/>
+            <line x1="14" y1="50" x2="32" y2="50" stroke="white" stroke-width="1.5"/>
+            <!-- Door -->
+            <rect x="36" y="42" width="14" height="26" fill="#1A2942" stroke="white" stroke-width="2"/>
+            <rect x="38" y="44" width="10" height="10" fill="#DDEBFF"/>
+            <circle cx="46" cy="58" r="1" fill="#FFC93C"/>
+            <!-- Window right -->
+            <rect x="54" y="40" width="14" height="14" fill="#DDEBFF" stroke="white" stroke-width="2"/>
+            <line x1="61" y1="40" x2="61" y2="54" stroke="white" stroke-width="1.5"/>
+            <!-- Plant -->
+            <rect x="56" y="60" width="8" height="6" fill="#8B6F4E"/>
+            <path d="M58 60 Q60 54 62 60" fill="#4ECB71"/>
+            <path d="M56 60 Q58 56 60 60" fill="#6BCB77"/>
+            <path d="M60 60 Q62 56 64 60" fill="#6BCB77"/>
+            <!-- Sign -->
+            <rect x="20" y="13" width="40" height="7" rx="2" fill="#FFC93C"/>
+            <rect x="22" y="14.5" width="36" height="4" rx="1" fill="white" opacity="0.5"/>
+            <!-- "OPEN" tag -->
+            <circle cx="62" cy="44" r="6" fill="#4ECB71"/>
+            <text x="62" y="46.5" font-size="5.5" text-anchor="middle" fill="white" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">NEW</text>
+          </svg>
+        </div>
+        <div class="section-title-block">
+          <h2>Shop &amp; Visit</h2>
+          <p>Indie bookshops, riso presses, coffee bars, antique fairs, and other newly-opened doors across the Bay Area.</p>
+        </div>
+      </div>
+      <div class="count" id="count-shop"><strong>0</strong> openings</div>
+    </div>
+  </div>
+  <div class="grid-section"><div class="grid" data-cat="shop"></div></div>
+</section>
+
+<!-- NEIGHBORHOODS -->
+<section class="nbhd-section" id="nbhd">
+  <div class="section-head">
+    <div class="head-card banner-nbhd">
+      <div class="left">
+        <div class="section-icon">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Sky / fog -->
+            <rect width="80" height="50" fill="#FFE8E5"/>
+            <circle cx="62" cy="18" r="8" fill="#FFC93C" opacity="0.85"/>
+            <!-- Distant hills -->
+            <path d="M0 50 L18 36 L34 50 Z" fill="#C8B8DA" opacity="0.55"/>
+            <!-- Bridge towers (Golden Gate red/orange) -->
+            <rect x="12" y="20" width="4" height="32" fill="#D8392B"/>
+            <rect x="64" y="20" width="4" height="32" fill="#D8392B"/>
+            <!-- Tower crossbeams -->
+            <rect x="11" y="26" width="6" height="2" fill="#A82218"/>
+            <rect x="63" y="26" width="6" height="2" fill="#A82218"/>
+            <rect x="11" y="36" width="6" height="2" fill="#A82218"/>
+            <rect x="63" y="36" width="6" height="2" fill="#A82218"/>
+            <!-- Tower tops -->
+            <rect x="10" y="18" width="8" height="3" fill="#D8392B"/>
+            <rect x="62" y="18" width="8" height="3" fill="#D8392B"/>
+            <!-- Suspension cables -->
+            <path d="M14 20 Q40 38 66 20" stroke="#D8392B" stroke-width="2" fill="none"/>
+            <line x1="14" y1="44" x2="66" y2="44" stroke="#D8392B" stroke-width="2.5"/>
+            <!-- Vertical cables -->
+            <line x1="22" y1="33" x2="22" y2="44" stroke="#D8392B" stroke-width="1"/>
+            <line x1="30" y1="38" x2="30" y2="44" stroke="#D8392B" stroke-width="1"/>
+            <line x1="40" y1="40" x2="40" y2="44" stroke="#D8392B" stroke-width="1"/>
+            <line x1="50" y1="38" x2="50" y2="44" stroke="#D8392B" stroke-width="1"/>
+            <line x1="58" y1="33" x2="58" y2="44" stroke="#D8392B" stroke-width="1"/>
+            <!-- Buildings on left side -->
+            <rect x="0" y="38" width="10" height="14" fill="#3D5378"/>
+            <rect x="2" y="42" width="2" height="2" fill="#FFC93C"/>
+            <rect x="6" y="42" width="2" height="2" fill="#FFC93C"/>
+            <rect x="2" y="46" width="2" height="2" fill="#FFC93C"/>
+            <rect x="6" y="46" width="2" height="2" fill="#FFC93C"/>
+            <!-- Buildings on right side -->
+            <rect x="70" y="32" width="10" height="20" fill="#2A4A6E"/>
+            <rect x="72" y="36" width="2" height="2" fill="#FFC93C"/>
+            <rect x="76" y="36" width="2" height="2" fill="#FFC93C"/>
+            <rect x="72" y="40" width="2" height="2" fill="#FFC93C"/>
+            <rect x="76" y="40" width="2" height="2" fill="#FFC93C"/>
+            <rect x="72" y="44" width="2" height="2" fill="#FFC93C"/>
+            <rect x="76" y="44" width="2" height="2" fill="#FFC93C"/>
+            <!-- Water -->
+            <rect y="50" width="80" height="22" fill="#2D8CFF"/>
+            <path d="M0 56 Q10 54 20 56 T40 56 T60 56 T80 56" stroke="#FFFFFF" stroke-width="0.9" fill="none" opacity="0.55"/>
+            <path d="M0 62 Q10 60 20 62 T40 62 T60 62 T80 62" stroke="#FFFFFF" stroke-width="0.9" fill="none" opacity="0.4"/>
+            <path d="M0 68 Q10 66 20 68 T40 68 T60 68 T80 68" stroke="#FFFFFF" stroke-width="0.9" fill="none" opacity="0.3"/>
+            <!-- Sailboat -->
+            <path d="M44 60 L46 52 L52 60 Z" fill="#FFFAF0"/>
+            <rect x="45" y="60" width="6" height="2" fill="#1A2942"/>
+          </svg>
+        </div>
+        <div class="section-title-block">
+          <h2>Browse by Neighborhood</h2>
+          <p>From Marin's marinas to San Jose's night markets — pick a corner of the Bay Area and we'll show you what's on.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="nbhd-grid" id="nbhdGrid"></div>
+</section>
+
+<!-- LIVE FEED -->
+<section class="live-section">
+  <div class="live-inner">
+    <div class="live-head">
+      <div>
+        <h2 class="serif">Just <em>added</em>.</h2>
+        <p>Fresh entries as they reach us — refreshed every few seconds throughout the day.</p>
+      </div>
+      <span class="live-pill" style="background: rgba(255,201,60,0.18); color: var(--sun);">● Live</span>
+    </div>
+    <div class="live-stream" id="liveStream"></div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter">
+  <h3 class="serif">Get the <em>daily</em> drop in your inbox.</h3>
+  <p>Five great picks across the Bay every weekday morning. No spam. Unsubscribe whenever.</p>
+  <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Welcome to BayBeat. See you tomorrow morning.');">
+    <input type="email" placeholder="your@email.com" required>
+    <button type="submit">Sign me up →</button>
+  </form>
+</section>
+
+<!-- SHOUTS MODAL — anonymous comments, no signup -->
+<div class="modal-bg" id="shoutsModal" onclick="if(event.target===this)closeShouts()" role="dialog" aria-modal="true" aria-labelledby="shoutsTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title-block">
+        <h3 id="shoutsTitle">Event</h3>
+        <p id="shoutsSubtitle">Anonymous shouts · no signup needed · keep it kind</p>
+      </div>
+      <button class="modal-close" onclick="closeShouts()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="shoutsList"></div>
+    </div>
+    <form class="modal-form" onsubmit="return submitShout(event)">
+      <input type="text" id="shoutsName" maxlength="32" placeholder="Your name (or stay Anonymous)" autocomplete="off">
+      <textarea id="shoutsText" rows="3" maxlength="200" placeholder="Drop a shout — what'd you think? what should other folks know?" oninput="updateShoutsCharCount()"></textarea>
+      <div class="modal-form-bottom">
+        <span class="char-count" id="shoutsCharCount">0/200</span>
+        <button type="submit" class="shouts-submit" id="shoutsSubmit" disabled>📣 Post shout</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-logo">BayBeat</div>
+  <p>Made with care for the whole Bay — its taquerias and tasting menus, its $12 shows and $95 prix fixes, its full economic and cultural range. Updated continuously.</p>
+  <div class="fineprint">
+    San Francisco · Oakland · Berkeley · Marin · The Peninsula · The South Bay<br>
+    Photos via Unsplash · Set in Plus Jakarta Sans &amp; Fraunces · 2026
+  </div>
+</footer>
+
+<script>
+  // ==========================================================
+  // DATA — focus is on what's NEW and FRESH in the Bay this
+  // week or month: openings, pop-ups, anniversary events,
+  // seasonal launches, new exhibits, residencies. Established
+  // institutions only earn a spot when they have something
+  // specific & newsworthy happening right now.
+  // ==========================================================
+  const ITEMS = [
+
+    // ===== EAT — new openings, pop-ups, anniversaries, seasonal menus =====
+    { id:1, name:"Sourdough Sundays at Tartine", cat:"eat", area:"sf", neighborhood:"Mission, SF",
+      hook:"Five rotating bakers, one oven, every Sunday morning till noon.",
+      url:"https://tartinebakery.com", photoId:"1509440159596-0249088772ff", emojiFallback:"🥖",
+      hours:6, when:"Sundays · 8am–noon", price:"$", isFree:false, moods:["family","cheap","weekend"] },
+    { id:2, name:"Cheese Board's 50th Anniversary Free Pizza Day", cat:"eat", area:"berkeley", neighborhood:"North Berkeley",
+      hook:"Free pizza day across all locations. Yes — actually, totally free.",
+      url:"https://cheeseboardcollective.coop", photoId:"1565299624946-b28f40a0ae38", emojiFallback:"🍕",
+      hours:16, when:"Saturday · all day", price:"Free", isFree:true, moods:["family","cheap","visitors","weekend"] },
+    { id:3, name:"Mr. Holmes' Yuzu-Honey Cruffin Drop", cat:"eat", area:"sf", neighborhood:"Tenderloin, SF",
+      hook:"This week's flavor only — yuzu honey, gone by 11am every day.",
+      url:"https://www.mrholmesbakehouse.com", photoId:"1509365390695-33aee754301f", emojiFallback:"🥐",
+      hours:14, when:"All week · 8am–sellout", price:"$", isFree:false, moods:["solo","weekend","cheap"] },
+    { id:4, name:"b. patisserie's Strawberry Kouign-Amann debuts", cat:"eat", area:"sf", neighborhood:"Lower Pacific Heights, SF",
+      hook:"Seasonal kouign-amann hits the case Wednesday. Strawberries from Watsonville.",
+      url:"https://www.bpatisserie.com", photoId:"1551024601-bec78aea704b", emojiFallback:"🍓",
+      hours:20, when:"Wed onward · while supply lasts", price:"$$", isFree:false, moods:["solo","date","weekend"] },
+    { id:5, name:"Sightglass: East African Single-Origin Tasting", cat:"eat", area:"sf", neighborhood:"SoMa, SF",
+      hook:"Three new Ethiopian and Kenyan beans, free tasting flight Saturday morning.",
+      url:"https://sightglasscoffee.com", photoId:"1495474472287-4d71bcdd2085", emojiFallback:"☕",
+      hours:30, when:"Sat · 10am tasting", price:"Free", isFree:true, moods:["solo","weekend","cheap"] },
+    { id:6, name:"Boba Guys Matcha-Mochi Limited Drop", cat:"eat", area:"sf", neighborhood:"Mission, SF",
+      hook:"New menu drop — matcha mochi tea, only through Memorial Day.",
+      url:"https://www.bobaguys.com", photoId:"1525803377221-4f6ccdaa5612", emojiFallback:"🧋",
+      hours:4, when:"Through Memorial Day", price:"$", isFree:false, moods:["family","cheap","solo"] },
+    { id:7, name:"Petite Crenn re-opens", cat:"eat", area:"sf", neighborhood:"Hayes Valley, SF",
+      hook:"Reborn Breton-Californian counter — 14 seats, fresh-shucked everything.",
+      url:"https://www.petitecrenn.com", photoId:"1559339352-11d035aa65de", emojiFallback:"🦪",
+      hours:18, when:"Just opened", price:"$$$", isFree:false, moods:["date","opening"] },
+    { id:8, name:"Shizen Vegan Sushi Bar: Spring Tasting", cat:"eat", area:"sf", neighborhood:"Mission, SF",
+      hook:"All-new spring omakase just dropped at SF's only vegan sushi counter.",
+      url:"https://www.shizensf.com", photoId:"1579871494447-9811cf80d66c", emojiFallback:"🍣",
+      hours:22, when:"Wed–Sun · 5:30–10pm", price:"$$$", isFree:false, moods:["date","opening"] },
+    { id:9, name:"Daytrip's Spring Fermentation Menu", cat:"eat", area:"oakland", neighborhood:"Adams Point, Oakland",
+      hook:"All-new fermented-everything tasting menu just dropped at Oakland's most exciting natural-wine bar.",
+      url:"https://www.daytripoakland.com", photoId:"1510812431401-41d2bd2722f3", emojiFallback:"🍷",
+      hours:7, when:"Wed–Sun · 5–10pm", price:"$$$", isFree:false, moods:["date","opening"] },
+    { id:10, name:"Hella Vegan Eats reopens brick-and-mortar", cat:"eat", area:"oakland", neighborhood:"Fruitvale, Oakland",
+      hook:"Beloved truck reopens with walls. Same horchata. New patio.",
+      url:"https://hellaveganeats.com", photoId:"1565299585323-38d6b0865b47", emojiFallback:"🌮",
+      hours:17, when:"Now open", price:"$", isFree:false, moods:["opening","cheap","family"] },
+    { id:11, name:"Sand Dollar Stinson Beach reopens", cat:"eat", area:"marin", neighborhood:"Stinson Beach, Marin",
+      hook:"The 100-year-old beachfront restaurant reopens for the season — oysters, burgers, ocean view.",
+      url:"https://www.stinsonbeachrestaurant.com", photoId:"1571197119282-7c4e2c2dac80", emojiFallback:"🦐",
+      hours:5, when:"Daily through Labor Day", price:"$$", isFree:false, moods:["visitors","date","family"] },
+    { id:12, name:"Boichik Bagels — new Burlingame outpost", cat:"eat", area:"peninsula", neighborhood:"Burlingame, Peninsula",
+      hook:"The Bay's most lined-up bagel shop opens a fourth location — same Montreal-style boil.",
+      url:"https://www.boichikbagels.com", photoId:"1510812431401-41d2bd2722f3", emojiFallback:"🥯",
+      hours:15, when:"Just opened daily 7am–3pm", price:"$", isFree:false, moods:["family","cheap","opening","weekend"] },
+    { id:13, name:"Snail Bar Oakland: New Wine List", cat:"eat", area:"oakland", neighborhood:"Adams Point, Oakland",
+      hook:"All-new spring wine list at Oakland's most-talked-about natural-wine spot.",
+      url:"https://snailbaroakland.com", photoId:"1551183053-bf91a1d81141", emojiFallback:"🍷",
+      hours:14, when:"Tue–Sat · 5–11pm", price:"$$", isFree:false, moods:["date","latenight"] },
+    { id:14, name:"Souvla's Hayes Valley Patio reopens", cat:"eat", area:"sf", neighborhood:"Hayes Valley, SF",
+      hook:"The patio's back for the season — Greek rotisserie, frozen wine, sun.",
+      url:"https://souvla.com", photoId:"1414235077428-338989a2e8c0", emojiFallback:"🍢",
+      hours:46, when:"Open through October", price:"$$", isFree:false, moods:["date","weekend","family"] },
+    { id:15, name:"Ferry Building Farmers Market — Strawberry Sat", cat:"eat", area:"sf", neighborhood:"Embarcadero, SF",
+      hook:"Strawberry season peaks this Saturday — six farms, 30+ varieties, free samples.",
+      url:"https://www.ferrybuildingmarketplace.com", photoId:"1488459716781-31db52582fe9", emojiFallback:"🍓",
+      hours:25, when:"Sat · 8am–2pm", price:"Free", isFree:true, moods:["family","cheap","weekend"] },
+
+    // ===== HEAR — specific upcoming concerts, festivals, screenings =====
+    { id:16, name:"Lake Merritt Lantern Festival", cat:"hear", area:"oakland", neighborhood:"Lake Merritt, Oakland",
+      hook:"1,400 floating lanterns, drum corps, and Vietnamese street eats around the lake.",
+      url:"https://www.visitoakland.com", photoId:"1545006398-2cf47a2b1b46", emojiFallback:"🎐",
+      hours:8, when:"Tonight · 7pm", price:"Free", isFree:true, moods:["family","date","visitors","today"] },
+    { id:17, name:"Fox Theater: Khruangbin 3-Night Residency", cat:"hear", area:"oakland", neighborhood:"Uptown, Oakland",
+      hook:"Three-night residency — tickets for the third show just released.",
+      url:"https://thefoxoakland.com", photoId:"1493225457124-a3eb161ffa5f", emojiFallback:"🎸",
+      hours:1, when:"Fri–Sun", price:"$$", isFree:false, moods:["date","latenight","weekend"] },
+    { id:18, name:"Roxie 35mm Festival kicks off", cat:"hear", area:"sf", neighborhood:"Mission, SF",
+      hook:"Two weeks of rare 35mm prints — vintage Bay Area noir opens the run tonight.",
+      url:"https://www.roxie.com", photoId:"1485846234645-a62644f84728", emojiFallback:"🎞️",
+      hours:4, when:"Through May 18", price:"$15", isFree:false, moods:["date","latenight","rainy"] },
+    { id:19, name:"Castro Theatre 70mm Saturday", cat:"hear", area:"sf", neighborhood:"Castro, SF",
+      hook:"Newly restored marquee — first show is Singin' in the Rain on 70mm.",
+      url:"https://www.castrotheatre.com", photoId:"1478720568477-152d9b164e26", emojiFallback:"🎬",
+      hours:21, when:"Saturday · 8pm", price:"$18", isFree:false, moods:["date","family","rainy","weekend"] },
+    { id:20, name:"Bottom of the Hill: Indie 4-Band", cat:"hear", area:"sf", neighborhood:"Potrero Hill, SF",
+      hook:"Four local indie bands. $12 door. Doors at 8.",
+      url:"https://www.bottomofthehill.com", photoId:"1493225457124-a3eb161ffa5f", emojiFallback:"🎤",
+      hours:2, when:"Tonight · 8pm", price:"$12", isFree:false, moods:["latenight","cheap","solo","today"] },
+    { id:21, name:"OMCA After Dark — California Cocktails", cat:"hear", area:"oakland", neighborhood:"Lake Merritt, Oakland",
+      hook:"This Friday's adults-only theme: California Cocktails. Garden DJs, cash bar, late hours.",
+      url:"https://museumca.org", photoId:"1554907984-15263bfd63bd", emojiFallback:"🍸",
+      hours:27, when:"Friday · 7–10pm", price:"$25", isFree:false, moods:["latenight","date","solo","weekend"] },
+    { id:22, name:"SFMOMA Free First Thursday", cat:"hear", area:"sf", neighborhood:"SoMa, SF",
+      hook:"Free admission this Thursday. Galleries open till 8pm.",
+      url:"https://www.sfmoma.org", photoId:"1554907984-15263bfd63bd", emojiFallback:"🖼️",
+      hours:32, when:"This Thursday · open till 8pm", price:"Free", isFree:true, moods:["solo","date","rainy","family"] },
+    { id:23, name:"Stern Grove Festival kicks off", cat:"hear", area:"sf", neighborhood:"Sunset, SF",
+      hook:"Free Sunday concerts in the eucalyptus grove — full lineup just announced.",
+      url:"https://sterngrove.org", photoId:"1493225457124-a3eb161ffa5f", emojiFallback:"🎶",
+      hours:24, when:"Sundays · Jun–Aug · 2pm", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
+    { id:24, name:"Hardly Strictly Bluegrass: Lineup announced", cat:"hear", area:"sf", neighborhood:"Golden Gate Park, SF",
+      hook:"This year's free three-day lineup just dropped — three headlining stages, October 4–6.",
+      url:"https://www.hardlystrictlybluegrass.com", photoId:"1499364615650-ec38552f4f34", emojiFallback:"🎻",
+      hours:9, when:"October · all weekend", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
+    { id:25, name:"Sunday Streets — Outer Sunset Edition", cat:"hear", area:"sf", neighborhood:"Outer Sunset, SF",
+      hook:"Free open-streets festival hits the Sunset — 1.5 miles of pavement, food trucks, music.",
+      url:"https://www.sundaystreetssf.com/find-an-event/", photoId:"1533174072545-7a4b6ad7a6c3", emojiFallback:"🏮",
+      hours:12, when:"This Sunday · 11am–4pm", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
+    { id:26, name:"Amoeba Music: Free In-Store Show", cat:"hear", area:"sf", neighborhood:"Haight-Ashbury, SF",
+      hook:"Indie band of the moment plays a free in-store at the Bay's most beloved record shop.",
+      url:"https://www.amoeba.com/live-shows/san-francisco/upcoming-shows-list/", photoId:"1539375665275-f9de415ef9ac", emojiFallback:"💿",
+      hours:9, when:"Saturday · 5pm · free", price:"Free", isFree:true, moods:["solo","cheap","latenight","weekend"] },
+    { id:27, name:"Oakland First Fridays", cat:"hear", area:"oakland", neighborhood:"Uptown, Oakland",
+      hook:"Telegraph closes for galleries, food trucks, and DJs every first Friday.",
+      url:"https://www.oaklandfirstfridays.org", photoId:"1517457373958-b7bdd4587205", emojiFallback:"🎉",
+      hours:38, when:"Friday · 5–9pm", price:"Free", isFree:true, moods:["family","cheap","latenight","visitors"] },
+    { id:28, name:"Mt. Tam Astronomy Star Party", cat:"hear", area:"marin", neighborhood:"Mt. Tamalpais, Marin",
+      hook:"SF Sidewalk Astronomers haul scopes up the mountain — free, layered-up, telescope queues.",
+      url:"https://www.sfsidewalkastronomers.org/mt-tamalpais-astronomy-program", photoId:"1419242902214-272b3f66ee7a", emojiFallback:"🔭",
+      hours:11, when:"Saturday · 8pm · free", price:"Free", isFree:true, moods:["date","latenight","family","weekend"] },
+    { id:29, name:"Pacifica Beach Coalition Beach Cleanup", cat:"hear", area:"peninsula", neighborhood:"Linda Mar Beach, Pacifica",
+      hook:"Free monthly beach cleanup along the Pacifica coast — buckets, bags, beach yoga after.",
+      url:"https://www.pacificabeachcoalition.org/", photoId:"1502082553048-f009c37129b9", emojiFallback:"🌊",
+      hours:19, when:"This Sat · 9am–noon", price:"Free", isFree:true, moods:["solo","family","weekend","cheap"] },
+    { id:30, name:"Pt. Richmond Music on the Main", cat:"hear", area:"eastbay", neighborhood:"Pt. Richmond, Richmond",
+      hook:"Free outdoor concerts in The Triangle — every Friday in summer kicks off this week.",
+      url:"https://www.pointrichmond.com/music-on-the-main/", photoId:"1499364615650-ec38552f4f34", emojiFallback:"🎷",
+      hours:28, when:"Fridays · 5:30–7:30pm", price:"Free", isFree:true, moods:["family","cheap","weekend"] },
+    { id:31, name:"Bedford Gallery: California Ceramics", cat:"hear", area:"eastbay", neighborhood:"Walnut Creek",
+      hook:"Fresh exhibit of 30 California ceramic artists, just opened this week.",
+      url:"https://www.bedfordgallery.org/", photoId:"1554907984-15263bfd63bd", emojiFallback:"🏺",
+      hours:38, when:"Through July 14", price:"$10", isFree:false, moods:["solo","rainy","date"] },
+    { id:32, name:"North Beach Festival", cat:"hear", area:"sf", neighborhood:"North Beach, SF",
+      hook:"Pasta cook-offs, opera, two stages of music, and parades down Columbus Ave. SF's oldest street fair.",
+      url:"https://www.sfnorthbeach.org/festival/", photoId:"1551183053-bf91a1d81141", emojiFallback:"🇮🇹",
+      hours:50, when:"This weekend · Sat–Sun", price:"Free", isFree:true, moods:["family","visitors","cheap","weekend"] },
+
+    // ===== DO — new tours, seasonal openings, specific weekend things =====
+    { id:33, name:"Sausalito Floating Homes Tour", cat:"do", area:"marin", neighborhood:"Sausalito, Marin",
+      hook:"Annual self-guided tour of 14 unique floating homes — one weekend only.",
+      url:"https://floatinghomes.org", photoId:"1518709594023-6eab9bab7b23", emojiFallback:"⛵",
+      hours:42, when:"This weekend · once a year", price:"$30", isFree:false, moods:["visitors","family","date","weekend"] },
+    { id:34, name:"Fitzgerald Marine Reserve Tide Pool Walk", cat:"do", area:"peninsula", neighborhood:"Moss Beach, Peninsula",
+      hook:"Naturalist-led tide-pooling at one of California's protected reserves — low-tide only.",
+      url:"https://parks.smcgov.org/fitzgerald-marine-reserve", photoId:"1507525428034-b723cf961d3e", emojiFallback:"🐚",
+      hours:26, when:"Sat low-tide · check site", price:"Free", isFree:true, moods:["family","solo","visitors","weekend"] },
+    { id:35, name:"Precita Eyes Mission Murals Tour", cat:"do", area:"sf", neighborhood:"Mission, SF",
+      hook:"Run by Mission muralists themselves — 100+ murals, 90 minutes, the city's most-loved walking tour.",
+      url:"https://www.precitaeyes.org/mural-tours.html", photoId:"1554907984-15263bfd63bd", emojiFallback:"🎨",
+      hours:36, when:"Sat–Sun · 11am & 1:30pm", price:"$20", isFree:false, moods:["solo","visitors","weekend"] },
+    { id:36, name:"Computer History Museum: New AI Wing opens", cat:"do", area:"southbay", neighborhood:"Mountain View, South Bay",
+      hook:"Brand-new permanent wing for AI history opens this week — interactive demos throughout.",
+      url:"https://computerhistory.org", photoId:"1581089778245-3ce67677f718", emojiFallback:"🤖",
+      hours:24, when:"Wed–Sun · 10–5", price:"$20", isFree:false, moods:["family","rainy","visitors"] },
+    { id:37, name:"Filoli Rose Season Opens", cat:"do", area:"peninsula", neighborhood:"Woodside, Peninsula",
+      hook:"500+ rose varieties begin blooming this week. Stays vivid through July.",
+      url:"https://filoli.org", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🌹",
+      hours:28, when:"Through July · Tue–Sun", price:"$25", isFree:false, moods:["solo","date","family","weekend"] },
+    { id:38, name:"St. George Spirits Alameda Point", cat:"do", area:"eastbay", neighborhood:"Alameda Point, Alameda",
+      hook:"The Bay's pioneering craft distillery — book a tasting, tour the still room, leave with absinthe.",
+      url:"https://www.stgeorgespirits.com/visit/", photoId:"1514218953-2148e74b2aa1", emojiFallback:"🥃",
+      hours:19, when:"Wed–Sun · tastings hourly", price:"$25", isFree:false, moods:["date","visitors","weekend"] },
+    { id:39, name:"UC Botanical: May Moonlight Walk", cat:"do", area:"berkeley", neighborhood:"Strawberry Canyon, Berkeley",
+      hook:"Once-a-month night walk through 34 acres of climate gardens. May edition Saturday.",
+      url:"https://botanicalgarden.berkeley.edu", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🌿",
+      hours:50, when:"This Saturday · 8pm", price:"$15", isFree:false, moods:["date","solo","visitors"] },
+    { id:40, name:"Tilden Park Botanic Garden: Wildflower Peak", cat:"do", area:"berkeley", neighborhood:"Berkeley Hills",
+      hook:"10 acres of California natives — wildflowers peak this month, free admission.",
+      url:"https://www.ebparks.org/parks/tilden", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🌸",
+      hours:60, when:"Through May · 8:30–5", price:"Free", isFree:true, moods:["solo","family","weekend","visitors"] },
+    { id:41, name:"Livermore Valley Wine Country", cat:"do", area:"eastbay", neighborhood:"Livermore Valley",
+      hook:"50+ wineries in California's oldest wine region — passport days run all summer.",
+      url:"https://www.lvwine.org/", photoId:"1506377247377-2a5b3b417ebb", emojiFallback:"🍷",
+      hours:60, when:"Weekends · year-round", price:"$45", isFree:false, moods:["date","visitors","weekend"] },
+    { id:42, name:"Sunday Streets — Mission Edition", cat:"do", area:"sf", neighborhood:"Mission, SF",
+      hook:"This Sunday's car-free festival hits Valencia — 1.5 miles of pavement, all free.",
+      url:"https://www.sundaystreetssf.com", photoId:"1517457373958-b7bdd4587205", emojiFallback:"🚲",
+      hours:10, when:"This Sunday · 11–4", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
+    { id:43, name:"Wente Vineyards: Spring Tasting Flight", cat:"do", area:"eastbay", neighborhood:"Livermore Valley",
+      hook:"All-new spring flight features 2024 vintages — free pour with reservation.",
+      url:"https://www.wentevineyards.com", photoId:"1506377247377-2a5b3b417ebb", emojiFallback:"🍇",
+      hours:55, when:"Daily · 11–4", price:"$$", isFree:false, moods:["date","visitors","weekend"] },
+    { id:44, name:"Toyota Pavilion at Concord: Summer Season", cat:"do", area:"eastbay", neighborhood:"Concord",
+      hook:"12,500-seat outdoor amphitheater kicks off the summer with a stacked lineup.",
+      url:"https://www.livenation.com/venue/KovZpZA7AAAA/concord-pavilion-events", photoId:"1501386761578-eac5c94b800a", emojiFallback:"🎤",
+      hours:14, when:"May–October", price:"$$", isFree:false, moods:["family","weekend","date"] },
+    { id:45, name:"Linda Mar Surf Shop: Lessons & Rentals", cat:"do", area:"peninsula", neighborhood:"Linda Mar Beach, Pacifica",
+      hook:"Pacifica's veteran surf school — beginner lessons, board rentals, wetsuits at the beach.",
+      url:"https://lindamarsurfshop.com/", photoId:"1502082553048-f009c37129b9", emojiFallback:"🏄",
+      hours:48, when:"Daily · book ahead", price:"$80", isFree:false, moods:["family","weekend","date"] },
+
+    // ===== SHOP — new openings, pop-ups, sales, drops =====
+    { id:46, name:"Folio Books: Spring Reading Series", cat:"shop", area:"sf", neighborhood:"Noe Valley, SF",
+      hook:"Noe Valley's beloved indie bookshop launches a weekly local-author reading series this Friday.",
+      url:"https://www.foliosf.com", photoId:"1521587760476-6c12a4b040da", emojiFallback:"📚",
+      hours:30, when:"Fri · 7pm · weekly", price:"Free entry", isFree:true, moods:["solo","opening","rainy","weekend"] },
+    { id:47, name:"ACGA Clay & Glass Festival", cat:"shop", area:"peninsula", neighborhood:"Palo Alto",
+      hook:"The Bay's largest ceramic & glass artisan show — 150+ Bay Area makers, one weekend.",
+      url:"https://www.acga.net/", photoId:"1490717336632-7f2b1e4fa9b9", emojiFallback:"🏺",
+      hours:42, when:"Sat–Sun · 10am–5pm", price:"Free entry", isFree:true, moods:["solo","weekend","date","family"] },
+    { id:48, name:"Colpa Press: Risograph Open Studio", cat:"shop", area:"sf", neighborhood:"Mission, SF",
+      hook:"SF's risograph publisher opens its studio Saturday — print a one-color zine, take it home.",
+      url:"https://colpapress.com", photoId:"1542038784456-1ea8e935640e", emojiFallback:"🖨️",
+      hours:38, when:"Sat · 12–5pm", price:"$15", isFree:false, moods:["solo","opening","rainy","weekend"] },
+    { id:49, name:"Other Avenues Food Co-op", cat:"shop", area:"sf", neighborhood:"Outer Sunset, SF",
+      hook:"SF's worker-owned cooperative grocery — bulk bins, local farms, member discounts on opening day.",
+      url:"https://www.otheravenuesfoodstore.coop/", photoId:"1488459716781-31db52582fe9", emojiFallback:"🥕",
+      hours:16, when:"Sat opening event · 9am", price:"$", isFree:false, moods:["family","weekend","cheap"] },
+    { id:50, name:"Alameda Antiques Faire (this Sunday)", cat:"shop", area:"eastbay", neighborhood:"Alameda Point, Alameda",
+      hook:"First Sunday of the month — 800 vendors. Bring cash and a wagon.",
+      url:"https://alamedapointantiquesfaire.com", photoId:"1583394293214-28ded15ee548", emojiFallback:"🪑",
+      hours:23, when:"This Sunday · 6am–3pm", price:"$15", isFree:false, moods:["family","cheap","visitors","weekend"] },
+    { id:51, name:"Heath Ceramics Annual Seconds Sale", cat:"shop", area:"sf", neighborhood:"Mission, SF",
+      hook:"The once-a-year seconds sale — 30–60% off the iconic California stoneware.",
+      url:"https://www.heathceramics.com", photoId:"1490717336632-7f2b1e4fa9b9", emojiFallback:"🏺",
+      hours:13, when:"This weekend · 10–6", price:"$$", isFree:false, moods:["weekend","date","solo"] },
+    { id:52, name:"Marine Layer Spring Drop", cat:"shop", area:"sf", neighborhood:"Hayes Valley, SF",
+      hook:"New spring collection lands today — small-batch dye colors and softer than last year's softest.",
+      url:"https://www.marinelayer.com", photoId:"1521587760476-6c12a4b040da", emojiFallback:"👕",
+      hours:8, when:"In stores now", price:"$$", isFree:false, moods:["solo","date","weekend"] },
+    { id:53, name:"Pleasanton Farmers' Market: Opening Day", cat:"shop", area:"eastbay", neighborhood:"Downtown Pleasanton",
+      hook:"California's longest-running outdoor farmers' market kicks off its 39th season this Saturday.",
+      url:"https://www.pcfma.org/markets/pleasanton/", photoId:"1488459716781-31db52582fe9", emojiFallback:"🍅",
+      hours:32, when:"Sat · 9am–1pm", price:"Free", isFree:true, moods:["family","cheap","weekend"] }
+  ];
+
+  // ==========================================================
+  // PHOTO URL — specific Unsplash photo IDs (stable CDN URLs)
+  // Each card uses an <img> with onerror so failed loads
+  // gracefully reveal the colored category bg + emoji underneath.
+  // ==========================================================
+  function photoUrl(item, w = 800) {
+    return `https://images.unsplash.com/photo-${item.photoId}?auto=format&fit=crop&w=${w}&q=80`;
+  }
+
+  // Pre-set the featured card photo (lantern festival vibe).
+  // If it fails, swap to a vibrant gradient that matches the theme.
+  const featuredPhotoId = "1545006398-2cf47a2b1b46";
+  const featuredPhotoUrl = `https://images.unsplash.com/photo-${featuredPhotoId}?auto=format&fit=crop&w=1600&q=80`;
+  const fpEl = document.getElementById('featuredPhoto');
+  const fpImg = new Image();
+  fpImg.onload = () => { fpEl.style.backgroundImage = `url('${featuredPhotoUrl}')`; };
+  fpImg.onerror = () => {
+    fpEl.style.background = 'linear-gradient(135deg, #FF5A4D 0%, #FFC93C 50%, #2DC4B0 100%)';
+    fpEl.innerHTML = '<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 140px; opacity: 0.55;">🎐</div>';
+  };
+  fpImg.src = featuredPhotoUrl;
+
+  // ==========================================================
+  // FILTER STATE
+  // ==========================================================
+  let activeQuick = 'all';
+  let searchQ = '';
+
+  function quickFilter(item) {
+    if (activeQuick === 'all') return true;
+    if (activeQuick === 'today') return item.hours < 24;
+    if (activeQuick === 'weekend') return item.moods.includes('weekend') || item.moods.includes('today');
+    if (activeQuick === 'free') return item.isFree;
+    if (activeQuick === 'family') return item.moods.includes('family');
+    if (activeQuick === 'latenight') return item.moods.includes('latenight');
+    if (activeQuick === 'opening') return item.moods.includes('opening') || item.hours <= 48;
+    if (activeQuick === 'cheap') return item.moods.includes('cheap') || item.isFree || item.price === '$' || (item.price && item.price.startsWith('$') && parseInt(item.price.slice(1)) <= 20);
+    return true;
+  }
+  function searchMatch(item) {
+    if (!searchQ) return true;
+    const q = searchQ.toLowerCase();
+    return item.name.toLowerCase().includes(q)
+      || item.hook.toLowerCase().includes(q)
+      || item.neighborhood.toLowerCase().includes(q)
+      || item.keys.toLowerCase().includes(q);
+  }
+
+  // ==========================================================
+  // RENDER CARD
+  // ==========================================================
+  function freshLabel(h) {
+    if (h < 1) return 'Just added';
+    if (h < 6) return Math.round(h) + 'h ago';
+    if (h < 24) return 'Today';
+    if (h < 48) return 'Yesterday';
+    if (h < 96) return Math.round(h/24) + 'd ago';
+    return 'This week';
+  }
+
+  // Each event has its own direct URL to the venue/event page. We always
+  // prefer the curated link; only fall back to a search if a URL is missing.
+  function eventInfoUrl(item) {
+    if (item.url) return item.url;
+    const q = encodeURIComponent(`${item.name} ${item.neighborhood}`);
+    return `https://www.google.com/search?q=${q}`;
+  }
+
+  function cardHTML(item) {
+    const isFresh = item.hours <= 48;
+    const url = photoUrl(item);
+    const link = eventInfoUrl(item);
+    return `
+      <div class="card cat-${item.cat}" data-id="${item.id}">
+        <a class="card-link" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="More info about ${item.name}">
+          <div class="card-photo">
+            <div class="photo-fallback">${item.emojiFallback}</div>
+            <img src="${url}" alt="${item.name}" loading="lazy"
+                 onerror="this.style.display='none';this.parentElement.classList.add('no-photo');">
+            <div class="card-pills">
+              <span class="pill cat-${item.cat}">${catLabel(item.cat)}</span>
+              <span class="pill ${item.isFree ? 'free' : 'price'}">${item.isFree ? '🆓 Free' : item.price}</span>
+            </div>
+            ${isFresh ? `<div style="position: absolute; bottom: 12px; left: 12px; z-index: 3;"><span class="pill fresh">${freshLabel(item.hours)}</span></div>` : ''}
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">${item.name}</h3>
+            <p class="card-hook">${item.hook}</p>
+            <div class="card-foot">
+              <span class="card-where">📍 ${item.neighborhood}</span>
+              <span class="card-when ${isFresh ? 'fresh' : ''}">${item.when}</span>
+            </div>
+          </div>
+        </a>
+        <div class="card-actions">
+          <button class="action-btn encore" data-id="${item.id}" onclick="toggleEncore(${item.id}, this)" aria-label="Encore — give this event some love">
+            <span class="icon">🎵</span>
+            <span class="encore-count">0</span>
+            <span class="action-label">encores</span>
+          </button>
+          <button class="action-btn shouts" data-id="${item.id}" onclick="openShouts(${item.id})" aria-label="View and add anonymous shouts">
+            <span class="icon">📣</span>
+            <span class="shouts-count">0</span>
+            <span class="action-label">shouts</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  function catLabel(c) {
+    return { eat:'🍜 Eat', hear:'🎶 Hear', do:'🌳 Do', shop:'🛍️ Shop', see:'🎬 See' }[c] || c;
+  }
+
+  // ==========================================================
+  // RENDER GRIDS BY CATEGORY
+  // ==========================================================
+  function renderAll() {
+    ['eat','hear','do','shop'].forEach(cat => {
+      const grid = document.querySelector(`.grid[data-cat="${cat}"]`);
+      if (!grid) return;
+      const items = ITEMS.filter(i => i.cat === cat && quickFilter(i) && searchMatch(i))
+        .sort((a,b) => a.hours - b.hours);
+      const countEl = document.querySelector(`#count-${cat} strong`);
+      if (countEl) countEl.textContent = items.length;
+      if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--ink-soft); background: white; border-radius: 18px;">
+          <div style="font-size: 40px; margin-bottom: 12px;">🤔</div>
+          <div>Nothing matches that filter in this section. Try another?</div>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = items.map(cardHTML).join('');
+    });
+    refreshActionStates();
+  }
+
+  // ==========================================================
+  // QUICK CHIPS
+  // ==========================================================
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeQuick = chip.dataset.quick;
+      renderAll();
+    });
+  });
+
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQ = e.target.value.trim();
+    renderAll();
+  });
+
+  // ==========================================================
+  // NEIGHBORHOODS
+  // ==========================================================
+  const NEIGHBORHOODS = [
+    { area:"sf", name:"San Francisco", emoji:"🌉",
+      subAreas:"Mission · Castro · Hayes Valley · North Beach · Embarcadero · Inner Sunset · Chinatown · Polk Gulch" },
+    { area:"oakland", name:"Oakland", emoji:"🌳",
+      subAreas:"Uptown · Lake Merritt · Rockridge · Temescal · Old Oakland · Fruitvale" },
+    { area:"berkeley", name:"Berkeley", emoji:"🎓",
+      subAreas:"Telegraph Ave · Gourmet Ghetto · Berkeley Hills · Fourth Street" },
+    { area:"eastbay", name:"East Bay", emoji:"🚉",
+      subAreas:"Alameda · Richmond · Walnut Creek · Concord · Pleasanton · Livermore · Hayward · Fremont · Emeryville" },
+    { area:"marin", name:"Marin", emoji:"🌲",
+      subAreas:"Sausalito · Mt. Tamalpais · Stinson Beach · Tiburon · Muir Woods" },
+    { area:"peninsula", name:"The Peninsula", emoji:"🌊",
+      subAreas:"Half Moon Bay · Pacifica · Burlingame · Woodside" },
+    { area:"southbay", name:"South Bay", emoji:"🌅",
+      subAreas:"Downtown San Jose · Mountain View · Cupertino · Palo Alto · Saratoga · Japantown" }
+  ];
+  function renderNeighborhoods() {
+    const grid = document.getElementById('nbhdGrid');
+    grid.innerHTML = NEIGHBORHOODS.map(n => {
+      const items = ITEMS.filter(i => i.area === n.area);
+      const fresh = items.filter(i => i.hours <= 48).length;
+      return `
+        <button class="nbhd-card" data-area="${n.area}">
+          <div class="nbhd-emoji">${n.emoji}</div>
+          <div class="nbhd-name">${n.name}</div>
+          <div class="nbhd-meta"><strong>${items.length}</strong> things ${fresh ? `· <strong style="color: var(--eat);">${fresh} new</strong>` : ''}</div>
+          <div class="nbhd-subareas">${n.subAreas}</div>
+        </button>
+      `;
+    }).join('');
+    grid.querySelectorAll('.nbhd-card').forEach(card => {
+      card.addEventListener('click', () => {
+        openNeighborhoodDetail(card.dataset.area);
+      });
+    });
+  }
+
+  // ==========================================================
+  // NEIGHBORHOOD DETAIL VIEW — a per-area subpage
+  // grouped by sub-neighborhood
+  // ==========================================================
+  function openNeighborhoodDetail(area) {
+    const n = NEIGHBORHOODS.find(x => x.area === area);
+    if (!n) return;
+    const items = ITEMS.filter(i => i.area === area).sort((a,b) => a.hours - b.hours);
+
+    // Group by exact neighborhood string
+    const groups = {};
+    items.forEach(i => {
+      const sub = i.neighborhood;
+      if (!groups[sub]) groups[sub] = [];
+      groups[sub].push(i);
+    });
+    const groupNames = Object.keys(groups).sort((a,b) => {
+      // Order groups by freshest item in each
+      const aMin = Math.min(...groups[a].map(x => x.hours));
+      const bMin = Math.min(...groups[b].map(x => x.hours));
+      return aMin - bMin;
+    });
+
+    // Header
+    document.getElementById('ndEmoji').textContent = n.emoji;
+    document.getElementById('ndTitle').textContent = n.name;
+    const fresh = items.filter(i => i.hours <= 48).length;
+    const summary = `<strong>${items.length}</strong> ${items.length === 1 ? 'event' : 'events'} happening across <strong>${groupNames.length}</strong> ${groupNames.length === 1 ? 'neighborhood' : 'neighborhoods'}${fresh ? ` · <strong style="color: var(--eat);">${fresh} just dropped</strong>` : ''}`;
+    document.getElementById('ndSummary').innerHTML = summary;
+    document.getElementById('ndSubAreas').textContent = n.subAreas;
+
+    // Groups
+    const groupsEl = document.getElementById('ndGroups');
+    if (items.length === 0) {
+      groupsEl.innerHTML = `<div class="nbhd-empty">
+        <div class="nbhd-empty-emoji">🤔</div>
+        <h3>No events listed yet for ${n.name}</h3>
+        <p style="color: var(--ink-soft); margin-top: 6px;">Check back soon — fresh things land here all week.</p>
+      </div>`;
+    } else {
+      groupsEl.innerHTML = groupNames.map(g => {
+        const groupItems = groups[g];
+        const fresh = groupItems.filter(x => x.hours <= 48).length;
+        return `
+          <div class="nbhd-group">
+            <div class="nbhd-group-head">
+              <h3 class="nbhd-group-name">${g}</h3>
+              <span class="nbhd-group-count"><strong>${groupItems.length}</strong> ${groupItems.length === 1 ? 'event' : 'events'}${fresh ? ` · ${fresh} new` : ''}</span>
+            </div>
+            <div class="grid">
+              ${groupItems.map(cardHTML).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Hide main category sections, show the detail
+    document.querySelectorAll('section[id^="sec-"], #nbhd, .featured-section, .live-section, .newsletter, .hero, footer').forEach(s => {
+      s.dataset.prevDisplay = s.style.display || '';
+      s.style.display = 'none';
+    });
+    document.getElementById('nbhdDetail').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    refreshActionStates();
+  }
+
+  function closeNeighborhoodDetail() {
+    document.querySelectorAll('section[id^="sec-"], #nbhd, .featured-section, .live-section, .newsletter, .hero, footer').forEach(s => {
+      s.style.display = s.dataset.prevDisplay || '';
+    });
+    document.getElementById('nbhdDetail').classList.remove('active');
+    document.getElementById('nbhd').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ==========================================================
+  // LIVE FEED
+  // ==========================================================
+  const stream = document.getElementById('liveStream');
+  const sortedFresh = ITEMS.slice().sort((a,b) => a.hours - b.hours);
+  let liveIdx = 0;
+  function pushLive() {
+    const item = sortedFresh[liveIdx % sortedFresh.length];
+    liveIdx++;
+    const time = new Date();
+    time.setHours(time.getHours() - item.hours);
+    const t = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    const row = document.createElement('a');
+    row.className = 'live-row flash';
+    row.href = eventInfoUrl(item);
+    row.target = '_blank';
+    row.rel = 'noopener noreferrer';
+    row.innerHTML = `
+      <span class="live-time">⚡ ${t.toLowerCase()} · ${catLabel(item.cat)}</span>
+      <div class="live-title">${item.name}</div>
+      <div class="live-where">📍 ${item.neighborhood} · ${item.when}</div>
+    `;
+    stream.insertBefore(row, stream.firstChild);
+    setTimeout(() => row.classList.remove('flash'), 1500);
+    while (stream.children.length > 8) stream.removeChild(stream.lastChild);
+  }
+
+  // ==========================================================
+  // ENCORES & SHOUTS — interactive layer
+  // "Encore" = like / show love · "Shout" = anonymous comment
+  //
+  // Two backends, one API:
+  //   - SUPABASE configured  → counts & shouts shared across all visitors
+  //   - SUPABASE not set     → localStorage (per-browser only)
+  //
+  // To go shared: paste your Supabase URL + anon key below,
+  // then run supabase-schema.sql in your Supabase SQL editor.
+  // ==========================================================
+  const SUPABASE_URL = '';        // e.g. 'https://xyzabc.supabase.co'
+  const SUPABASE_ANON_KEY = '';   // your anon/public key
+  let sb = null;
+  if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+      console.warn('Supabase init failed, falling back to localStorage', e);
+      sb = null;
+    }
+  }
+  const HAS_BACKEND = !!sb;
+
+  // Shared caches — populated from Supabase on bootstrap (or from localStorage)
+  let encoreDeltaCache = {};   // {id: count} — extra encores beyond seed
+  let shoutsCache = {};        // {id: [{name, text, ts}, ...]}
+
+  const STORAGE_KEY = 'baybeat_v1';
+  const MY_ENCORES_KEY = 'baybeat_my_encores';
+
+  function loadStore() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveStore(data) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch (e) {}
+  }
+  function getMyEncores() {
+    try { return JSON.parse(localStorage.getItem(MY_ENCORES_KEY) || '{}'); }
+    catch (e) { return {}; }
+  }
+  function setMyEncores(map) {
+    try { localStorage.setItem(MY_ENCORES_KEY, JSON.stringify(map)); }
+    catch (e) {}
+  }
+
+  // Deterministic seed so counts feel alive even before users engage.
+  function seedCount(id) {
+    const x = (id * 31 + 17) % 137;
+    const variance = (id * 7) % 28;
+    return 8 + x + variance;
+  }
+  function getEncoreCount(id) {
+    return Math.max(0, seedCount(id) + (encoreDeltaCache[id] || 0));
+  }
+  function isEncored(id) { return !!getMyEncores()[id]; }
+  function getShouts(id) { return shoutsCache[id] || []; }
+  function getShoutCount(id) { return getShouts(id).length; }
+
+  // ---- Bootstrap ----
+  // Pulls real counts + shouts from Supabase if configured;
+  // otherwise loads cached state from localStorage.
+  async function bootstrapBackend() {
+    if (HAS_BACKEND) {
+      try {
+        const [{ data: encs }, { data: shts }] = await Promise.all([
+          sb.from('encores').select('event_id,count'),
+          sb.from('shouts').select('*').order('created_at', { ascending: true })
+        ]);
+        if (encs) encs.forEach(r => { encoreDeltaCache[r.event_id] = r.count; });
+        if (shts) shts.forEach(s => {
+          if (!shoutsCache[s.event_id]) shoutsCache[s.event_id] = [];
+          shoutsCache[s.event_id].push({
+            name: s.name, text: s.text, ts: new Date(s.created_at).getTime()
+          });
+        });
+      } catch (e) {
+        console.warn('Supabase fetch failed; falling back to localStorage', e);
+        sb = null;
+      }
+    }
+    if (!sb) {
+      const store = loadStore();
+      encoreDeltaCache = store.encores || {};
+      shoutsCache = store.shouts || {};
+    }
+  }
+
+  // ---- Encore (toggle like) ----
+  async function toggleEncore(id, btn) {
+    const my = getMyEncores();
+    const wasEncored = !!my[id];
+    const delta = wasEncored ? -1 : +1;
+    if (wasEncored) delete my[id]; else my[id] = true;
+    setMyEncores(my);
+
+    // Optimistic local update
+    encoreDeltaCache[id] = (encoreDeltaCache[id] || 0) + delta;
+    syncEncoreUI(id, btn, true);
+
+    if (sb) {
+      try {
+        const { data, error } = await sb.rpc('increment_encore', { eid: id, delta });
+        if (data !== null && data !== undefined) {
+          encoreDeltaCache[id] = data;
+          syncEncoreUI(id);
+        }
+      } catch (e) { console.warn('Encore sync failed', e); }
+    } else {
+      const store = loadStore();
+      store.encores = encoreDeltaCache;
+      saveStore(store);
+    }
+  }
+  function syncEncoreUI(id, animatedBtn, animate) {
+    const encored = isEncored(id);
+    const count = getEncoreCount(id);
+    document.querySelectorAll(`.action-btn.encore[data-id="${id}"]`).forEach(b => {
+      b.classList.toggle('encored', encored);
+      if (animate && b === animatedBtn) {
+        b.classList.add('bumped');
+        setTimeout(() => b.classList.remove('bumped'), 460);
+      }
+      const c = b.querySelector('.encore-count');
+      if (c) c.textContent = count;
+    });
+  }
+
+  // ---- Shouts modal ----
+  let currentShoutsItem = null;
+
+  function openShouts(id) {
+    const item = ITEMS.find(x => x.id === id);
+    if (!item) return;
+    currentShoutsItem = item;
+    document.getElementById('shoutsTitle').textContent = item.name;
+    document.getElementById('shoutsSubtitle').textContent =
+      `${item.neighborhood} · anonymous, no signup · keep it kind`;
+    renderShouts(id);
+    document.getElementById('shoutsName').value = '';
+    document.getElementById('shoutsText').value = '';
+    updateShoutsCharCount();
+    document.getElementById('shoutsModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('shoutsText').focus(), 80);
+  }
+  function closeShouts() {
+    document.getElementById('shoutsModal').classList.remove('active');
+    document.body.style.overflow = '';
+    currentShoutsItem = null;
+  }
+  function renderShouts(id) {
+    const shouts = getShouts(id);
+    const list = document.getElementById('shoutsList');
+    if (shouts.length === 0) {
+      list.innerHTML = `
+        <div class="shouts-empty">
+          <span class="ee">📣</span>
+          <div class="title">Be the first to drop a shout</div>
+          <div style="font-size: 13px;">No signup. Pick a name or stay Anonymous.</div>
+        </div>`;
+      return;
+    }
+    list.innerHTML = shouts.slice().reverse().map(s => `
+      <div class="shout">
+        <div class="shout-head">
+          <span class="shout-name">${escapeHtml(s.name || 'Anonymous')}</span>
+          <span class="shout-time">${timeAgo(s.ts)}</span>
+        </div>
+        <div class="shout-text">${escapeHtml(s.text)}</div>
+      </div>
+    `).join('');
+  }
+  function timeAgo(ts) {
+    const sec = Math.floor((Date.now() - ts) / 1000);
+    if (sec < 60) return 'just now';
+    if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+    if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+    return Math.floor(sec/86400) + 'd ago';
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+  async function submitShout(ev) {
+    ev.preventDefault();
+    if (!currentShoutsItem) return false;
+    const text = document.getElementById('shoutsText').value.trim();
+    if (!text || text.length > 200) return false;
+    const name = (document.getElementById('shoutsName').value.trim() || 'Anonymous').substring(0, 32);
+    const id = currentShoutsItem.id;
+
+    // Optimistic local update
+    const localShout = { name, text, ts: Date.now() };
+    if (!shoutsCache[id]) shoutsCache[id] = [];
+    shoutsCache[id].push(localShout);
+
+    document.getElementById('shoutsText').value = '';
+    updateShoutsCharCount();
+    renderShouts(id);
+    document.querySelectorAll(`.action-btn.shouts[data-id="${id}"] .shouts-count`).forEach(el => {
+      el.textContent = getShoutCount(id);
+    });
+
+    if (sb) {
+      try {
+        const { data, error } = await sb.from('shouts')
+          .insert({ event_id: id, name, text }).select().single();
+        if (error) throw error;
+        if (data) {
+          // Reconcile timestamp from server
+          const idx = shoutsCache[id].length - 1;
+          shoutsCache[id][idx].ts = new Date(data.created_at).getTime();
+          renderShouts(id);
+        }
+      } catch (e) {
+        console.warn('Shout failed to save', e);
+        // Roll back optimistic
+        shoutsCache[id].pop();
+        renderShouts(id);
+        alert("Couldn't post shout. Try again?");
+      }
+    } else {
+      const store = loadStore();
+      store.shouts = shoutsCache;
+      saveStore(store);
+    }
+    return false;
+  }
+  function updateShoutsCharCount() {
+    const text = document.getElementById('shoutsText').value;
+    const len = text.length;
+    document.getElementById('shoutsCharCount').textContent = `${len}/200`;
+    document.getElementById('shoutsSubmit').disabled = (len === 0 || len > 200);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('shoutsModal').classList.contains('active')) {
+      closeShouts();
+    }
+  });
+
+  // After every render, sync action button states/counts
+  function refreshActionStates() {
+    document.querySelectorAll('.action-btn.encore').forEach(btn => {
+      const id = parseInt(btn.dataset.id, 10);
+      btn.classList.toggle('encored', isEncored(id));
+      const c = btn.querySelector('.encore-count');
+      if (c) c.textContent = getEncoreCount(id);
+    });
+    document.querySelectorAll('.action-btn.shouts').forEach(btn => {
+      const id = parseInt(btn.dataset.id, 10);
+      const c = btn.querySelector('.shouts-count');
+      if (c) c.textContent = getShoutCount(id);
+    });
+  }
+
+  // Seed a handful of realistic shouts so first-time *local* visitors
+  // see a populated modal. SKIPS when Supabase is configured (real DB).
+  function seedSampleShouts() {
+    if (sb) return;
+    const store = loadStore();
+    if (store.seeded) return;
+    if (!store.shouts) store.shouts = {};
+    const now = Date.now();
+    const samples = [
+      { id: 1,  name: "Sasha",         text: "Worth the line, every Sunday. Get the morning bun.", h: 36 },
+      { id: 1,  name: "Anonymous",     text: "Pro tip: go before 9am or you're waiting an hour.",   h: 72 },
+      { id: 2,  name: "Berkeley local",text: "Free pizza day is no joke. Get there before noon.",   h: 14 },
+      { id: 16, name: "Erin",          text: "Best free thing in Oakland this season. Go early.",   h: 18 },
+      { id: 16, name: "Anonymous",     text: "Park at Lake Park Ave, walk in. Lots fill fast.",     h: 6 },
+      { id: 17, name: "Drew",          text: "Khruangbin night 1 was incredible. Find tickets.",    h: 8 },
+      { id: 22, name: "Anonymous",     text: "Line at SFMOMA was 30min last time but moves fast.",  h: 240 },
+      { id: 30, name: "Anonymous",     text: "Free outdoor music + tacos from El Sobrante. ✓",      h: 168 },
+      { id: 40, name: "Anonymous",     text: "Bring your own water — Tilden trails get warm.",      h: 96 },
+      { id: 47, name: "Maya",          text: "ACGA festival was packed last year. Go on Sunday.",   h: 8 },
+      { id: 35, name: "Anonymous",     text: "Precita Eyes guides are the actual artists. So good.",h: 60 },
+      { id: 24, name: "Anonymous",     text: "HSB lineup is stacked this year. Showed up early.",   h: 4 },
+      { id: 9,  name: "Tomás",         text: "Daytrip's fermented carrot tasting is wild. Worth it.",h: 12 }
+    ];
+    samples.forEach(s => {
+      if (!store.shouts[s.id]) store.shouts[s.id] = [];
+      store.shouts[s.id].push({ name: s.name, text: s.text, ts: now - (s.h * 3600 * 1000) });
+    });
+    store.seeded = true;
+    saveStore(store);
+    shoutsCache = store.shouts;
+  }
+
+  // ==========================================================
+  // STATS — keep hero numbers in sync with actual data
+  // ==========================================================
+  function updateStats() {
+    const counts = { eat:0, hear:0, do:0, shop:0 };
+    ITEMS.forEach(i => { counts[i.cat] = (counts[i.cat] || 0) + 1; });
+    document.getElementById('stat-eat').textContent  = counts.eat;
+    document.getElementById('stat-hear').textContent = counts.hear;
+    document.getElementById('stat-do').textContent   = counts.do;
+    document.getElementById('stat-shop').textContent = counts.shop;
+    const total = ITEMS.length;
+    document.getElementById('livePillTop').textContent = `Live · ${total} things this week`;
+  }
+
+  // ==========================================================
+  // INIT — bootstrap from backend (or localStorage), then render
+  // ==========================================================
+  (async function init() {
+    await bootstrapBackend();
+    seedSampleShouts();
+    updateStats();
+    renderNeighborhoods();
+    renderAll();   // refreshActionStates is called inside renderAll()
+  })();
+  for (let i = 0; i < 4; i++) setTimeout(pushLive, i * 250);
+  setInterval(pushLive, 5500);
+
+  // Featured card opens info about that specific event (Lake Merritt Lantern Festival)
+  document.getElementById('featuredCard').addEventListener('click', () => {
+    window.open('https://www.google.com/search?q=' + encodeURIComponent('Lake Merritt Lantern Festival Oakland'), '_blank', 'noopener,noreferrer');
+  });
+</script>
+</body>
+</html>
