@@ -246,6 +246,18 @@
     box-shadow: var(--shadow);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+  .stat-card:active {
+    transform: translateY(0);
   }
   .stat-card .num {
     font-family: 'Fraunces', serif;
@@ -1125,6 +1137,77 @@
   @media (max-width: 560px) {
     .grid { grid-template-columns: 1fr; }
   }
+
+  /* ==================== WEATHER WIDGET ==================== */
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .weather-widget {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .weather-now {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(26,41,66,0.10);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 5px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(26,41,66,0.06);
+  }
+  .weather-divider {
+    color: var(--ink-muted);
+    font-size: 13px;
+  }
+  .weather-week {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .weather-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(26,41,66,0.08);
+    border-radius: 10px;
+    padding: 5px 8px;
+    min-width: 42px;
+    box-shadow: 0 1px 4px rgba(26,41,66,0.05);
+    cursor: default;
+    transition: box-shadow 0.15s;
+  }
+  .weather-day:hover { box-shadow: 0 3px 10px rgba(26,41,66,0.12); }
+  .wd-name { font-size: 10px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+  .wd-icon { font-size: 17px; line-height: 1.2; }
+  .wd-temp { font-size: 12px; font-weight: 700; color: var(--ink); }
+  .wd-lohi { font-size: 10px; color: var(--ink-muted); }
+  .weather-day.wkd { border-color: var(--sun); background: rgba(255,201,60,0.14); }
+  .hero-top-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  @media (max-width: 700px) {
+    .weather-week { display: none; }
+    .weather-divider { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -1152,9 +1235,18 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-top">
-    <span class="live-pill" id="livePillTop">Live · loading…</span>
-    <span>·</span>
-    <span>Tuesday, May 5, 2026</span>
+    <!-- Weather: top-left -->
+    <div class="weather-widget">
+      <span class="weather-now" id="weatherNow">⏳ Loading Bay weather…</span>
+      <span class="weather-divider">·</span>
+      <div class="weather-week" id="weatherWeek"></div>
+    </div>
+    <!-- Date + live pill: top-right -->
+    <div class="hero-top-right">
+      <span class="live-pill" id="livePillTop">Live · loading…</span>
+      <span style="color:var(--ink-muted); font-size:13px;">·</span>
+      <span id="heroDate" style="font-size:13px; color:var(--ink-soft); font-weight:500;"></span>
+    </div>
   </div>
   <h1 class="serif">
     What's <em>happening</em> around the<br>
@@ -1171,33 +1263,34 @@
     <button class="chip" data-quick="today"><span class="emoji">🔥</span> Today</button>
     <button class="chip" data-quick="weekend"><span class="emoji">📅</span> This weekend</button>
     <button class="chip" data-quick="free"><span class="emoji">🆓</span> Free</button>
-    <button class="chip" data-quick="family"><span class="emoji">👨‍👩‍👧</span> Family-friendly</button>
+    <button class="chip" data-quick="family"><span class="emoji">👨‍👩‍👧</span> Families &amp; Groups</button>
+    <button class="chip" data-quick="outdoor"><span class="emoji">🌿</span> Outdoor</button>
     <button class="chip" data-quick="latenight"><span class="emoji">🌙</span> Late night</button>
     <button class="chip" data-quick="opening"><span class="emoji">🎉</span> Just opened</button>
     <button class="chip" data-quick="cheap"><span class="emoji">🪙</span> Under $20</button>
   </div>
 
   <div class="hero-stats">
-    <div class="stat-card eat">
+    <a class="stat-card eat" href="#sec-eat">
       <div class="corner">🍜</div>
       <div class="num" id="stat-eat">—</div>
       <div class="label">Restaurants &amp; eats</div>
-    </div>
-    <div class="stat-card hear">
+    </a>
+    <a class="stat-card hear" href="#sec-hear">
       <div class="corner">🎶</div>
       <div class="num" id="stat-hear">—</div>
       <div class="label">Concerts &amp; shows</div>
-    </div>
-    <div class="stat-card do">
+    </a>
+    <a class="stat-card do" href="#sec-do">
       <div class="corner">🌳</div>
       <div class="num" id="stat-do">—</div>
       <div class="label">Things to do</div>
-    </div>
-    <div class="stat-card shop">
+    </a>
+    <a class="stat-card shop" href="#sec-shop">
       <div class="corner">🛍️</div>
       <div class="num" id="stat-shop">—</div>
       <div class="label">Stores &amp; openings</div>
-    </div>
+    </a>
   </div>
 </section>
 
@@ -1234,6 +1327,41 @@
       </div>
     </div>
   </div>
+</section>
+
+
+<!-- THIS WEEKEND SPOTLIGHT -->
+<section id="sec-weekend" style="display:none;">
+  <div class="section-head">
+    <div class="head-card" style="background: linear-gradient(135deg, #FF5A4D 0%, #FFC93C 60%, #4ECB71 100%);">
+      <div class="left">
+        <div class="section-icon" style="font-size:48px; display:flex; align-items:center; justify-content:center;">📅</div>
+        <div class="section-title-block">
+          <h2 style="color:white;">This Weekend</h2>
+          <p style="color:rgba(255,255,255,0.88);">Hand-picked picks for Friday, Saturday &amp; Sunday — the best the Bay has right now.</p>
+        </div>
+      </div>
+      <div class="count" id="count-weekend" style="color:white;"><strong>0</strong> weekend picks</div>
+    </div>
+  </div>
+  <div class="grid-section"><div class="grid" id="grid-weekend"></div></div>
+</section>
+
+<!-- FAMILIES & GROUPS -->
+<section id="sec-family" style="display:none;">
+  <div class="section-head">
+    <div class="head-card" style="background: linear-gradient(135deg, #4ECB71 0%, #2DC4B0 100%);">
+      <div class="left">
+        <div class="section-icon" style="font-size:48px; display:flex; align-items:center; justify-content:center;">👨‍👩‍👧</div>
+        <div class="section-title-block">
+          <h2 style="color:white;">Families &amp; Groups</h2>
+          <p style="color:rgba(255,255,255,0.88);">Kid-friendly, group-ready, and great for everyone — from tide pools to free festivals.</p>
+        </div>
+      </div>
+      <div class="count" id="count-family" style="color:white;"><strong>0</strong> family picks</div>
+    </div>
+  </div>
+  <div class="grid-section"><div class="grid" id="grid-family"></div></div>
 </section>
 
 <!-- EAT & DRINK -->
@@ -1574,226 +1702,454 @@
   // ==========================================================
   const ITEMS = [
 
-    // ===== EAT — new openings, pop-ups, anniversaries, seasonal menus =====
+    // ===== EAT — new openings, pop-ups, seasonal menus =====
     { id:1, name:"Sourdough Sundays at Tartine", cat:"eat", area:"sf", neighborhood:"Mission, SF",
       hook:"Five rotating bakers, one oven, every Sunday morning till noon.",
       url:"https://tartinebakery.com", photoId:"1509440159596-0249088772ff", emojiFallback:"🥖",
-      hours:6, when:"Sundays · 8am–noon", price:"$", isFree:false, moods:["family","cheap","weekend"] },
-    { id:2, name:"Cheese Board's 50th Anniversary Free Pizza Day", cat:"eat", area:"berkeley", neighborhood:"North Berkeley",
-      hook:"Free pizza day across all locations. Yes — actually, totally free.",
-      url:"https://cheeseboardcollective.coop", photoId:"1565299624946-b28f40a0ae38", emojiFallback:"🍕",
-      hours:16, when:"Saturday · all day", price:"Free", isFree:true, moods:["family","cheap","visitors","weekend"] },
+      startDate:"2026-05-03", endDate:"2026-12-27",
+      when:"Sundays · 8am–noon", price:"$", isFree:false, moods:["family","cheap","weekend"], keys:"bread bakery sourdough tartine" },
     { id:3, name:"Mr. Holmes' Yuzu-Honey Cruffin Drop", cat:"eat", area:"sf", neighborhood:"Tenderloin, SF",
       hook:"This week's flavor only — yuzu honey, gone by 11am every day.",
       url:"https://www.mrholmesbakehouse.com", photoId:"1509365390695-33aee754301f", emojiFallback:"🥐",
-      hours:14, when:"All week · 8am–sellout", price:"$", isFree:false, moods:["solo","weekend","cheap"] },
-    { id:4, name:"b. patisserie's Strawberry Kouign-Amann debuts", cat:"eat", area:"sf", neighborhood:"Lower Pacific Heights, SF",
-      hook:"Seasonal kouign-amann hits the case Wednesday. Strawberries from Watsonville.",
+      startDate:"2026-05-04", endDate:"2026-05-10",
+      when:"All week · 8am–sellout", price:"$", isFree:false, moods:["solo","weekend","cheap"], keys:"cruffin pastry bakery yuzu honey" },
+    { id:4, name:"b. patisserie's Strawberry Kouign-Amann", cat:"eat", area:"sf", neighborhood:"Lower Pacific Heights, SF",
+      hook:"Seasonal kouign-amann hits the case this week. Strawberries from Watsonville.",
       url:"https://www.bpatisserie.com", photoId:"1551024601-bec78aea704b", emojiFallback:"🍓",
-      hours:20, when:"Wed onward · while supply lasts", price:"$$", isFree:false, moods:["solo","date","weekend"] },
+      startDate:"2026-05-06", endDate:"2026-05-20",
+      when:"Wed onward · while supply lasts", price:"$$", isFree:false, moods:["solo","date","weekend"], keys:"patisserie french pastry strawberry" },
     { id:5, name:"Sightglass: East African Single-Origin Tasting", cat:"eat", area:"sf", neighborhood:"SoMa, SF",
       hook:"Three new Ethiopian and Kenyan beans, free tasting flight Saturday morning.",
       url:"https://sightglasscoffee.com", photoId:"1495474472287-4d71bcdd2085", emojiFallback:"☕",
-      hours:30, when:"Sat · 10am tasting", price:"Free", isFree:true, moods:["solo","weekend","cheap"] },
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 10am tasting · Free", price:"Free", isFree:true, moods:["solo","weekend","cheap"], keys:"coffee ethiopia kenya tasting sightglass" },
     { id:6, name:"Boba Guys Matcha-Mochi Limited Drop", cat:"eat", area:"sf", neighborhood:"Mission, SF",
       hook:"New menu drop — matcha mochi tea, only through Memorial Day.",
-      url:"https://www.bobaguys.com", photoId:"1525803377221-4f6ccdaa5612", emojiFallback:"🧋",
-      hours:4, when:"Through Memorial Day", price:"$", isFree:false, moods:["family","cheap","solo"] },
+      url:"https://www.bobaguys.com", photoId:"FchqkZj7jBU", emojiFallback:"🧋",
+      startDate:"2026-05-01", endDate:"2026-05-25",
+      when:"Through Memorial Day", price:"$", isFree:false, moods:["family","cheap","solo"], keys:"boba tea matcha mochi drinks" },
     { id:7, name:"Petite Crenn re-opens", cat:"eat", area:"sf", neighborhood:"Hayes Valley, SF",
       hook:"Reborn Breton-Californian counter — 14 seats, fresh-shucked everything.",
       url:"https://www.petitecrenn.com", photoId:"1559339352-11d035aa65de", emojiFallback:"🦪",
-      hours:18, when:"Just opened", price:"$$$", isFree:false, moods:["date","opening"] },
-    { id:8, name:"Shizen Vegan Sushi Bar: Spring Tasting", cat:"eat", area:"sf", neighborhood:"Mission, SF",
+      startDate:"2026-05-01", endDate:"2026-12-31",
+      when:"Just opened", price:"$$$", isFree:false, moods:["date","opening"], keys:"french oysters upscale hayes valley" },
+    { id:8, name:"Shizen Vegan Sushi: Spring Omakase", cat:"eat", area:"sf", neighborhood:"Mission, SF",
       hook:"All-new spring omakase just dropped at SF's only vegan sushi counter.",
       url:"https://www.shizensf.com", photoId:"1579871494447-9811cf80d66c", emojiFallback:"🍣",
-      hours:22, when:"Wed–Sun · 5:30–10pm", price:"$$$", isFree:false, moods:["date","opening"] },
+      startDate:"2026-05-01", endDate:"2026-06-30",
+      when:"Wed–Sun · 5:30–10pm", price:"$$$", isFree:false, moods:["date","opening"], keys:"vegan sushi japanese omakase" },
     { id:9, name:"Daytrip's Spring Fermentation Menu", cat:"eat", area:"oakland", neighborhood:"Adams Point, Oakland",
       hook:"All-new fermented-everything tasting menu just dropped at Oakland's most exciting natural-wine bar.",
       url:"https://www.daytripoakland.com", photoId:"1510812431401-41d2bd2722f3", emojiFallback:"🍷",
-      hours:7, when:"Wed–Sun · 5–10pm", price:"$$$", isFree:false, moods:["date","opening"] },
+      startDate:"2026-05-01", endDate:"2026-06-30",
+      when:"Wed–Sun · 5–10pm", price:"$$$", isFree:false, moods:["date","opening"], keys:"natural wine fermentation oakland" },
     { id:10, name:"Hella Vegan Eats reopens brick-and-mortar", cat:"eat", area:"oakland", neighborhood:"Fruitvale, Oakland",
       hook:"Beloved truck reopens with walls. Same horchata. New patio.",
       url:"https://hellaveganeats.com", photoId:"1565299585323-38d6b0865b47", emojiFallback:"🌮",
-      hours:17, when:"Now open", price:"$", isFree:false, moods:["opening","cheap","family"] },
+      startDate:"2026-05-01", endDate:"2026-12-31",
+      when:"Now open", price:"$", isFree:false, moods:["opening","cheap","family"], keys:"vegan mexican oakland fruitvale" },
     { id:11, name:"Sand Dollar Stinson Beach reopens", cat:"eat", area:"marin", neighborhood:"Stinson Beach, Marin",
       hook:"The 100-year-old beachfront restaurant reopens for the season — oysters, burgers, ocean view.",
-      url:"https://www.stinsonbeachrestaurant.com", photoId:"1571197119282-7c4e2c2dac80", emojiFallback:"🦐",
-      hours:5, when:"Daily through Labor Day", price:"$$", isFree:false, moods:["visitors","date","family"] },
-    { id:12, name:"Boichik Bagels — new Burlingame outpost", cat:"eat", area:"peninsula", neighborhood:"Burlingame, Peninsula",
+      url:"https://www.stinsonbeachrestaurant.com", photoId:"hABs8e3Ico8", emojiFallback:"🦐",
+      startDate:"2026-05-01", endDate:"2026-09-01",
+      when:"Daily through Labor Day", price:"$$", isFree:false, moods:["visitors","date","family"], keys:"beach seafood oysters stinson marin" },
+    { id:12, name:"Boichik Bagels — new Burlingame location", cat:"eat", area:"peninsula", neighborhood:"Burlingame, Peninsula",
       hook:"The Bay's most lined-up bagel shop opens a fourth location — same Montreal-style boil.",
-      url:"https://www.boichikbagels.com", photoId:"1510812431401-41d2bd2722f3", emojiFallback:"🥯",
-      hours:15, when:"Just opened daily 7am–3pm", price:"$", isFree:false, moods:["family","cheap","opening","weekend"] },
-    { id:13, name:"Snail Bar Oakland: New Wine List", cat:"eat", area:"oakland", neighborhood:"Adams Point, Oakland",
+      url:"https://www.boichikbagels.com", photoId:"C__pF4IzAG0", emojiFallback:"🥯",
+      startDate:"2026-05-01", endDate:"2026-12-31",
+      when:"Now open · daily 7am–3pm", price:"$", isFree:false, moods:["family","cheap","opening","weekend"], keys:"bagel montreal breakfast burlingame" },
+    { id:13, name:"Snail Bar Oakland: New Spring Wine List", cat:"eat", area:"oakland", neighborhood:"Adams Point, Oakland",
       hook:"All-new spring wine list at Oakland's most-talked-about natural-wine spot.",
       url:"https://snailbaroakland.com", photoId:"1551183053-bf91a1d81141", emojiFallback:"🍷",
-      hours:14, when:"Tue–Sat · 5–11pm", price:"$$", isFree:false, moods:["date","latenight"] },
+      startDate:"2026-05-01", endDate:"2026-07-31",
+      when:"Tue–Sat · 5–11pm", price:"$$", isFree:false, moods:["date","latenight"], keys:"natural wine bar oakland snail" },
     { id:14, name:"Souvla's Hayes Valley Patio reopens", cat:"eat", area:"sf", neighborhood:"Hayes Valley, SF",
       hook:"The patio's back for the season — Greek rotisserie, frozen wine, sun.",
       url:"https://souvla.com", photoId:"1414235077428-338989a2e8c0", emojiFallback:"🍢",
-      hours:46, when:"Open through October", price:"$$", isFree:false, moods:["date","weekend","family"] },
-    { id:15, name:"Ferry Building Farmers Market — Strawberry Sat", cat:"eat", area:"sf", neighborhood:"Embarcadero, SF",
+      startDate:"2026-05-01", endDate:"2026-10-31",
+      when:"Open through October", price:"$$", isFree:false, moods:["date","weekend","family"], keys:"greek rotisserie outdoor patio hayes valley" },
+    { id:15, name:"Ferry Building Farmers Market — Strawberry Saturday", cat:"eat", area:"sf", neighborhood:"Embarcadero, SF",
       hook:"Strawberry season peaks this Saturday — six farms, 30+ varieties, free samples.",
       url:"https://www.ferrybuildingmarketplace.com", photoId:"1488459716781-31db52582fe9", emojiFallback:"🍓",
-      hours:25, when:"Sat · 8am–2pm", price:"Free", isFree:true, moods:["family","cheap","weekend"] },
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 8am–2pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend"], keys:"farmers market strawberry embarcadero ferry building" },
 
-    // ===== HEAR — specific upcoming concerts, festivals, screenings =====
-    { id:16, name:"Lake Merritt Lantern Festival", cat:"hear", area:"oakland", neighborhood:"Lake Merritt, Oakland",
-      hook:"1,400 floating lanterns, drum corps, and Vietnamese street eats around the lake.",
-      url:"https://www.visitoakland.com", photoId:"1545006398-2cf47a2b1b46", emojiFallback:"🎐",
-      hours:8, when:"Tonight · 7pm", price:"Free", isFree:true, moods:["family","date","visitors","today"] },
+    // ===== HEAR — concerts, screenings, festivals =====
     { id:17, name:"Fox Theater: Khruangbin 3-Night Residency", cat:"hear", area:"oakland", neighborhood:"Uptown, Oakland",
-      hook:"Three-night residency — tickets for the third show just released.",
+      hook:"Three-night residency at Oakland's crown jewel — catch the final nights this weekend.",
       url:"https://thefoxoakland.com", photoId:"1493225457124-a3eb161ffa5f", emojiFallback:"🎸",
-      hours:1, when:"Fri–Sun", price:"$$", isFree:false, moods:["date","latenight","weekend"] },
-    { id:18, name:"Roxie 35mm Festival kicks off", cat:"hear", area:"sf", neighborhood:"Mission, SF",
-      hook:"Two weeks of rare 35mm prints — vintage Bay Area noir opens the run tonight.",
+      startDate:"2026-05-08", endDate:"2026-05-10",
+      when:"Fri–Sun · doors 7pm", price:"$$", isFree:false, moods:["date","latenight","weekend"], keys:"khruangbin fox theater concert oakland uptown" },
+    { id:18, name:"Roxie 35mm Festival", cat:"hear", area:"sf", neighborhood:"Mission, SF",
+      hook:"Two weeks of rare 35mm prints — vintage Bay Area noir runs through May 18.",
       url:"https://www.roxie.com", photoId:"1485846234645-a62644f84728", emojiFallback:"🎞️",
-      hours:4, when:"Through May 18", price:"$15", isFree:false, moods:["date","latenight","rainy"] },
+      startDate:"2026-05-06", endDate:"2026-05-18",
+      when:"Through May 18", price:"$15", isFree:false, moods:["date","latenight","rainy"], keys:"film 35mm cinema roxie noir mission" },
     { id:19, name:"Castro Theatre 70mm Saturday", cat:"hear", area:"sf", neighborhood:"Castro, SF",
-      hook:"Newly restored marquee — first show is Singin' in the Rain on 70mm.",
+      hook:"Newly restored marquee — first show is Singin' in the Rain on 70mm. Historic.",
       url:"https://www.castrotheatre.com", photoId:"1478720568477-152d9b164e26", emojiFallback:"🎬",
-      hours:21, when:"Saturday · 8pm", price:"$18", isFree:false, moods:["date","family","rainy","weekend"] },
-    { id:20, name:"Bottom of the Hill: Indie 4-Band", cat:"hear", area:"sf", neighborhood:"Potrero Hill, SF",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 8pm", price:"$18", isFree:false, moods:["date","family","rainy","weekend"], keys:"castro cinema 70mm film singing rain" },
+    { id:20, name:"Bottom of the Hill: Indie 4-Band Night", cat:"hear", area:"sf", neighborhood:"Potrero Hill, SF",
       hook:"Four local indie bands. $12 door. Doors at 8.",
       url:"https://www.bottomofthehill.com", photoId:"1493225457124-a3eb161ffa5f", emojiFallback:"🎤",
-      hours:2, when:"Tonight · 8pm", price:"$12", isFree:false, moods:["latenight","cheap","solo","today"] },
+      startDate:"2026-05-06", endDate:"2026-05-06",
+      when:"Tonight · doors 8pm", price:"$12", isFree:false, moods:["latenight","cheap","solo","today"], keys:"indie bands music potrero hill bar" },
     { id:21, name:"OMCA After Dark — California Cocktails", cat:"hear", area:"oakland", neighborhood:"Lake Merritt, Oakland",
-      hook:"This Friday's adults-only theme: California Cocktails. Garden DJs, cash bar, late hours.",
-      url:"https://museumca.org", photoId:"1554907984-15263bfd63bd", emojiFallback:"🍸",
-      hours:27, when:"Friday · 7–10pm", price:"$25", isFree:false, moods:["latenight","date","solo","weekend"] },
+      hook:"Adults-only Friday night: California Cocktails theme. Garden DJs, cash bar, late hours.",
+      url:"https://museumca.org", photoId:"A10y2Eq7OHY", emojiFallback:"🍸",
+      startDate:"2026-05-08", endDate:"2026-05-08",
+      when:"Fri May 8 · 7–10pm", price:"$25", isFree:false, moods:["latenight","date","solo","weekend"], keys:"omca museum cocktails nightlife oakland" },
     { id:22, name:"SFMOMA Free First Thursday", cat:"hear", area:"sf", neighborhood:"SoMa, SF",
-      hook:"Free admission this Thursday. Galleries open till 8pm.",
+      hook:"Free admission this Thursday — galleries open till 8pm.",
       url:"https://www.sfmoma.org", photoId:"1554907984-15263bfd63bd", emojiFallback:"🖼️",
-      hours:32, when:"This Thursday · open till 8pm", price:"Free", isFree:true, moods:["solo","date","rainy","family"] },
-    { id:23, name:"Stern Grove Festival kicks off", cat:"hear", area:"sf", neighborhood:"Sunset, SF",
-      hook:"Free Sunday concerts in the eucalyptus grove — full lineup just announced.",
-      url:"https://sterngrove.org", photoId:"1493225457124-a3eb161ffa5f", emojiFallback:"🎶",
-      hours:24, when:"Sundays · Jun–Aug · 2pm", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
-    { id:24, name:"Hardly Strictly Bluegrass: Lineup announced", cat:"hear", area:"sf", neighborhood:"Golden Gate Park, SF",
-      hook:"This year's free three-day lineup just dropped — three headlining stages, October 4–6.",
+      startDate:"2026-05-07", endDate:"2026-05-07",
+      when:"Thu May 7 · open till 8pm · Free", price:"Free", isFree:true, moods:["solo","date","rainy","family"], keys:"sfmoma museum art free thursday" },
+    { id:54, name:"Electric Squeezebox Orchestra — Salesforce Park", cat:"hear", area:"sf", neighborhood:"SoMa, SF",
+      hook:"18-piece big band jazz, free rooftop concert. Bring a blanket — doors fill by noon.",
+      url:"https://www.tjpa.org/salesforce-transit-center/activities", photoId:"dBWvUqBoOU8", emojiFallback:"🎷",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 12:30–2:30pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","solo"], keys:"jazz big band salesforce park rooftop free concert electric squeezebox" },
+    { id:55, name:"Yerba Buena Gardens Festival: Season Opener", cat:"hear", area:"sf", neighborhood:"SoMa, SF",
+      hook:"The free outdoor arts festival opens its 26th season with a salsa dance party and live performances.",
+      url:"https://www.ybgfestival.org", photoId:"1533174072545-7a4b6ad7a6c3", emojiFallback:"💃",
+      startDate:"2026-05-09", endDate:"2026-10-25",
+      when:"Sat May 9 · noon · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","date"], keys:"outdoor concert dance salsa soma ybg festival free" },
+    { id:56, name:"Starlight Movies: Honey, I Shrunk the Kids", cat:"hear", area:"eastbay", neighborhood:"Alameda",
+      hook:"Free outdoor movie night in Alameda's park — bring a blanket, snacks, and '80s nostalgia.",
+      url:"https://www.alamedaca.gov", photoId:"1478720568477-152d9b164e26", emojiFallback:"🎬",
+      startDate:"2026-05-08", endDate:"2026-05-08",
+      when:"Fri May 8 · dusk · Free", price:"Free", isFree:true, moods:["family","cheap","weekend"], keys:"outdoor movie family alameda free park" },
+    { id:23, name:"Stern Grove Festival — Summer Lineup Announced", cat:"hear", area:"sf", neighborhood:"Sunset, SF",
+      hook:"Free Sunday concerts in the eucalyptus grove — full summer lineup just announced.",
+      url:"https://sterngrove.org", photoId:"1499364615650-ec38552f4f34", emojiFallback:"🎶",
+      startDate:"2026-06-07", endDate:"2026-08-30",
+      when:"Sundays · Jun–Aug · 2pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"stern grove concert outdoor free summer music" },
+    { id:24, name:"Hardly Strictly Bluegrass: Lineup Announced", cat:"hear", area:"sf", neighborhood:"Golden Gate Park, SF",
+      hook:"This year's free three-day lineup just dropped — three stages, October 4–6.",
       url:"https://www.hardlystrictlybluegrass.com", photoId:"1499364615650-ec38552f4f34", emojiFallback:"🎻",
-      hours:9, when:"October · all weekend", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
+      startDate:"2026-10-04", endDate:"2026-10-06",
+      when:"Oct 4–6 · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"bluegrass golden gate park festival free october" },
     { id:25, name:"Sunday Streets — Outer Sunset Edition", cat:"hear", area:"sf", neighborhood:"Outer Sunset, SF",
       hook:"Free open-streets festival hits the Sunset — 1.5 miles of pavement, food trucks, music.",
       url:"https://www.sundaystreetssf.com/find-an-event/", photoId:"1533174072545-7a4b6ad7a6c3", emojiFallback:"🏮",
-      hours:12, when:"This Sunday · 11am–4pm", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
+      startDate:"2026-05-10", endDate:"2026-05-10",
+      when:"Sun May 10 · 11am–4pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"sunday streets sunset free outdoor bikes" },
     { id:26, name:"Amoeba Music: Free In-Store Show", cat:"hear", area:"sf", neighborhood:"Haight-Ashbury, SF",
-      hook:"Indie band of the moment plays a free in-store at the Bay's most beloved record shop.",
+      hook:"Live free show at the Bay's most beloved record shop — see site for this week's artist.",
       url:"https://www.amoeba.com/live-shows/san-francisco/upcoming-shows-list/", photoId:"1539375665275-f9de415ef9ac", emojiFallback:"💿",
-      hours:9, when:"Saturday · 5pm · free", price:"Free", isFree:true, moods:["solo","cheap","latenight","weekend"] },
-    { id:27, name:"Oakland First Fridays", cat:"hear", area:"oakland", neighborhood:"Uptown, Oakland",
-      hook:"Telegraph closes for galleries, food trucks, and DJs every first Friday.",
-      url:"https://www.oaklandfirstfridays.org", photoId:"1517457373958-b7bdd4587205", emojiFallback:"🎉",
-      hours:38, when:"Friday · 5–9pm", price:"Free", isFree:true, moods:["family","cheap","latenight","visitors"] },
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 5pm · Free", price:"Free", isFree:true, moods:["solo","cheap","latenight","weekend"], keys:"amoeba music record shop free show haight" },
     { id:28, name:"Mt. Tam Astronomy Star Party", cat:"hear", area:"marin", neighborhood:"Mt. Tamalpais, Marin",
-      hook:"SF Sidewalk Astronomers haul scopes up the mountain — free, layered-up, telescope queues.",
+      hook:"SF Sidewalk Astronomers haul scopes up the mountain — free, telescope queues, dress warm.",
       url:"https://www.sfsidewalkastronomers.org/mt-tamalpais-astronomy-program", photoId:"1419242902214-272b3f66ee7a", emojiFallback:"🔭",
-      hours:11, when:"Saturday · 8pm · free", price:"Free", isFree:true, moods:["date","latenight","family","weekend"] },
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 8pm · Free", price:"Free", isFree:true, moods:["date","latenight","family","weekend"], keys:"astronomy stars telescope marin mt tamalpais" },
     { id:29, name:"Pacifica Beach Coalition Beach Cleanup", cat:"hear", area:"peninsula", neighborhood:"Linda Mar Beach, Pacifica",
-      hook:"Free monthly beach cleanup along the Pacifica coast — buckets, bags, beach yoga after.",
+      hook:"Free monthly beach cleanup along the Pacifica coast — buckets provided, beach yoga after.",
       url:"https://www.pacificabeachcoalition.org/", photoId:"1502082553048-f009c37129b9", emojiFallback:"🌊",
-      hours:19, when:"This Sat · 9am–noon", price:"Free", isFree:true, moods:["solo","family","weekend","cheap"] },
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 9am–noon · Free", price:"Free", isFree:true, moods:["solo","family","weekend","cheap"], keys:"beach cleanup volunteer outdoor pacifica coastal" },
     { id:30, name:"Pt. Richmond Music on the Main", cat:"hear", area:"eastbay", neighborhood:"Pt. Richmond, Richmond",
-      hook:"Free outdoor concerts in The Triangle — every Friday in summer kicks off this week.",
+      hook:"Free outdoor summer concert series kicks off — every Friday at The Triangle.",
       url:"https://www.pointrichmond.com/music-on-the-main/", photoId:"1499364615650-ec38552f4f34", emojiFallback:"🎷",
-      hours:28, when:"Fridays · 5:30–7:30pm", price:"Free", isFree:true, moods:["family","cheap","weekend"] },
+      startDate:"2026-05-08", endDate:"2026-08-28",
+      when:"Fridays · 5:30–7:30pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend"], keys:"free concert outdoor richmond music live" },
     { id:31, name:"Bedford Gallery: California Ceramics", cat:"hear", area:"eastbay", neighborhood:"Walnut Creek",
       hook:"Fresh exhibit of 30 California ceramic artists, just opened this week.",
       url:"https://www.bedfordgallery.org/", photoId:"1554907984-15263bfd63bd", emojiFallback:"🏺",
-      hours:38, when:"Through July 14", price:"$10", isFree:false, moods:["solo","rainy","date"] },
-    { id:32, name:"North Beach Festival", cat:"hear", area:"sf", neighborhood:"North Beach, SF",
-      hook:"Pasta cook-offs, opera, two stages of music, and parades down Columbus Ave. SF's oldest street fair.",
-      url:"https://www.sfnorthbeach.org/festival/", photoId:"1551183053-bf91a1d81141", emojiFallback:"🇮🇹",
-      hours:50, when:"This weekend · Sat–Sun", price:"Free", isFree:true, moods:["family","visitors","cheap","weekend"] },
+      startDate:"2026-05-01", endDate:"2026-07-14",
+      when:"Through July 14", price:"$10", isFree:false, moods:["solo","rainy","date"], keys:"ceramics gallery art walnut creek east bay" },
+    { id:32, name:"SF International Arts Festival — Final Days", cat:"hear", area:"sf", neighborhood:"Fort Mason, SF",
+      hook:"60+ theater, dance, and music ensembles from 11 countries — final weekend.",
+      url:"https://www.sfiaf.org", photoId:"1485846234645-a62644f84728", emojiFallback:"🎭",
+      startDate:"2026-05-06", endDate:"2026-05-10",
+      when:"Through May 10 · Fort Mason", price:"$", isFree:false, moods:["date","visitors","weekend"], keys:"arts festival theater dance music international" },
 
-    // ===== DO — new tours, seasonal openings, specific weekend things =====
-    { id:33, name:"Sausalito Floating Homes Tour", cat:"do", area:"marin", neighborhood:"Sausalito, Marin",
-      hook:"Annual self-guided tour of 14 unique floating homes — one weekend only.",
-      url:"https://floatinghomes.org", photoId:"1518709594023-6eab9bab7b23", emojiFallback:"⛵",
-      hours:42, when:"This weekend · once a year", price:"$30", isFree:false, moods:["visitors","family","date","weekend"] },
+    // ===== DO — tours, outdoor adventures, experiences =====
     { id:34, name:"Fitzgerald Marine Reserve Tide Pool Walk", cat:"do", area:"peninsula", neighborhood:"Moss Beach, Peninsula",
-      hook:"Naturalist-led tide-pooling at one of California's protected reserves — low-tide only.",
+      hook:"Naturalist-led tide-pooling at one of California's protected reserves — low-tide Saturday only.",
       url:"https://parks.smcgov.org/fitzgerald-marine-reserve", photoId:"1507525428034-b723cf961d3e", emojiFallback:"🐚",
-      hours:26, when:"Sat low-tide · check site", price:"Free", isFree:true, moods:["family","solo","visitors","weekend"] },
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · low-tide · Free", price:"Free", isFree:true, moods:["family","solo","visitors","weekend"], keys:"tide pools nature outdoor coast family pacifica" },
     { id:35, name:"Precita Eyes Mission Murals Tour", cat:"do", area:"sf", neighborhood:"Mission, SF",
       hook:"Run by Mission muralists themselves — 100+ murals, 90 minutes, the city's most-loved walking tour.",
-      url:"https://www.precitaeyes.org/mural-tours.html", photoId:"1554907984-15263bfd63bd", emojiFallback:"🎨",
-      hours:36, when:"Sat–Sun · 11am & 1:30pm", price:"$20", isFree:false, moods:["solo","visitors","weekend"] },
-    { id:36, name:"Computer History Museum: New AI Wing opens", cat:"do", area:"southbay", neighborhood:"Mountain View, South Bay",
+      url:"https://www.precitaeyes.org/mural-tours.html", photoId:"iIjsVCvYI0", emojiFallback:"🎨",
+      startDate:"2026-05-09", endDate:"2026-12-31",
+      when:"Sat–Sun · 11am & 1:30pm", price:"$20", isFree:false, moods:["solo","visitors","weekend"], keys:"murals walking tour mission art street" },
+    { id:36, name:"Computer History Museum: New AI Wing", cat:"do", area:"southbay", neighborhood:"Mountain View, South Bay",
       hook:"Brand-new permanent wing for AI history opens this week — interactive demos throughout.",
       url:"https://computerhistory.org", photoId:"1581089778245-3ce67677f718", emojiFallback:"🤖",
-      hours:24, when:"Wed–Sun · 10–5", price:"$20", isFree:false, moods:["family","rainy","visitors"] },
+      startDate:"2026-05-01", endDate:"2026-12-31",
+      when:"Wed–Sun · 10am–5pm", price:"$20", isFree:false, moods:["family","rainy","visitors"], keys:"ai museum technology history mountain view silicon valley" },
     { id:37, name:"Filoli Rose Season Opens", cat:"do", area:"peninsula", neighborhood:"Woodside, Peninsula",
-      hook:"500+ rose varieties begin blooming this week. Stays vivid through July.",
+      hook:"500+ rose varieties begin blooming this week — stays vivid through July.",
       url:"https://filoli.org", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🌹",
-      hours:28, when:"Through July · Tue–Sun", price:"$25", isFree:false, moods:["solo","date","family","weekend"] },
-    { id:38, name:"St. George Spirits Alameda Point", cat:"do", area:"eastbay", neighborhood:"Alameda Point, Alameda",
+      startDate:"2026-05-06", endDate:"2026-07-31",
+      when:"Tue–Sun · through July", price:"$25", isFree:false, moods:["solo","date","family","weekend"], keys:"roses gardens outdoor woodside peninsula" },
+    { id:38, name:"St. George Spirits Distillery Tour", cat:"do", area:"eastbay", neighborhood:"Alameda Point, Alameda",
       hook:"The Bay's pioneering craft distillery — book a tasting, tour the still room, leave with absinthe.",
       url:"https://www.stgeorgespirits.com/visit/", photoId:"1514218953-2148e74b2aa1", emojiFallback:"🥃",
-      hours:19, when:"Wed–Sun · tastings hourly", price:"$25", isFree:false, moods:["date","visitors","weekend"] },
+      startDate:"2026-05-06", endDate:"2026-12-31",
+      when:"Wed–Sun · tastings hourly", price:"$25", isFree:false, moods:["date","visitors","weekend"], keys:"distillery spirits tasting alameda craft" },
     { id:39, name:"UC Botanical: May Moonlight Walk", cat:"do", area:"berkeley", neighborhood:"Strawberry Canyon, Berkeley",
       hook:"Once-a-month night walk through 34 acres of climate gardens. May edition Saturday.",
       url:"https://botanicalgarden.berkeley.edu", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🌿",
-      hours:50, when:"This Saturday · 8pm", price:"$15", isFree:false, moods:["date","solo","visitors"] },
-    { id:40, name:"Tilden Park Botanic Garden: Wildflower Peak", cat:"do", area:"berkeley", neighborhood:"Berkeley Hills",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 8pm", price:"$15", isFree:false, moods:["date","solo","visitors"], keys:"botanical garden night walk berkeley outdoor" },
+    { id:40, name:"Tilden Park: Wildflower Peak", cat:"do", area:"berkeley", neighborhood:"Berkeley Hills",
       hook:"10 acres of California natives — wildflowers peak this month, free admission.",
       url:"https://www.ebparks.org/parks/tilden", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🌸",
-      hours:60, when:"Through May · 8:30–5", price:"Free", isFree:true, moods:["solo","family","weekend","visitors"] },
-    { id:41, name:"Livermore Valley Wine Country", cat:"do", area:"eastbay", neighborhood:"Livermore Valley",
+      startDate:"2026-05-01", endDate:"2026-05-31",
+      when:"Through May · 8:30am–5pm · Free", price:"Free", isFree:true, moods:["solo","family","weekend","visitors"], keys:"wildflowers nature park hiking outdoor berkeley hills" },
+    { id:41, name:"Livermore Valley Wine Country Passport Days", cat:"do", area:"eastbay", neighborhood:"Livermore Valley",
       hook:"50+ wineries in California's oldest wine region — passport days run all summer.",
       url:"https://www.lvwine.org/", photoId:"1506377247377-2a5b3b417ebb", emojiFallback:"🍷",
-      hours:60, when:"Weekends · year-round", price:"$45", isFree:false, moods:["date","visitors","weekend"] },
+      startDate:"2026-05-09", endDate:"2026-09-30",
+      when:"Weekends · year-round", price:"$45", isFree:false, moods:["date","visitors","weekend"], keys:"wine winery livermore valley tasting outdoor" },
     { id:42, name:"Sunday Streets — Mission Edition", cat:"do", area:"sf", neighborhood:"Mission, SF",
-      hook:"This Sunday's car-free festival hits Valencia — 1.5 miles of pavement, all free.",
+      hook:"Car-free Valencia St this Sunday — 1.5 miles of pavement, bikes, food trucks, all free.",
       url:"https://www.sundaystreetssf.com", photoId:"1517457373958-b7bdd4587205", emojiFallback:"🚲",
-      hours:10, when:"This Sunday · 11–4", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"] },
-    { id:43, name:"Wente Vineyards: Spring Tasting Flight", cat:"do", area:"eastbay", neighborhood:"Livermore Valley",
-      hook:"All-new spring flight features 2024 vintages — free pour with reservation.",
-      url:"https://www.wentevineyards.com", photoId:"1506377247377-2a5b3b417ebb", emojiFallback:"🍇",
-      hours:55, when:"Daily · 11–4", price:"$$", isFree:false, moods:["date","visitors","weekend"] },
-    { id:44, name:"Toyota Pavilion at Concord: Summer Season", cat:"do", area:"eastbay", neighborhood:"Concord",
-      hook:"12,500-seat outdoor amphitheater kicks off the summer with a stacked lineup.",
-      url:"https://www.livenation.com/venue/KovZpZA7AAAA/concord-pavilion-events", photoId:"1501386761578-eac5c94b800a", emojiFallback:"🎤",
-      hours:14, when:"May–October", price:"$$", isFree:false, moods:["family","weekend","date"] },
-    { id:45, name:"Linda Mar Surf Shop: Lessons & Rentals", cat:"do", area:"peninsula", neighborhood:"Linda Mar Beach, Pacifica",
+      startDate:"2026-05-10", endDate:"2026-05-10",
+      when:"Sun May 10 · 11am–4pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"sunday streets mission bikes outdoor free" },
+    { id:45, name:"Linda Mar Surf Lessons & Rentals", cat:"do", area:"peninsula", neighborhood:"Linda Mar Beach, Pacifica",
       hook:"Pacifica's veteran surf school — beginner lessons, board rentals, wetsuits at the beach.",
       url:"https://lindamarsurfshop.com/", photoId:"1502082553048-f009c37129b9", emojiFallback:"🏄",
-      hours:48, when:"Daily · book ahead", price:"$80", isFree:false, moods:["family","weekend","date"] },
+      startDate:"2026-05-06", endDate:"2026-09-30",
+      when:"Daily · book ahead", price:"$80", isFree:false, moods:["family","weekend","date"], keys:"surfing lessons outdoor beach pacifica coast" },
+    { id:57, name:"KQED Fest — Free All-Day Block Party", cat:"do", area:"sf", neighborhood:"Mission, SF",
+      hook:"KQED's free open house and block party: live music, food trucks, hands-on activities for all ages.",
+      url:"https://www.kqed.org", photoId:"BQdYlT-LkJQ", emojiFallback:"🎪",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 11am–6pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend"], keys:"kqed festival free outdoor community block party" },
+    { id:58, name:"Taiwanese American Cultural Festival", cat:"do", area:"sf", neighborhood:"Union Square, SF",
+      hook:"Free festival at Union Square celebrating Taiwanese culture — food, performances, kids activities, 10am–4pm.",
+      url:"https://www.taiwanese-american.org", photoId:"FAR1WugJR5Q", emojiFallback:"🏮",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 10am–4pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"taiwanese culture festival free union square family" },
+    { id:59, name:"May Madness Car Show & Parade", cat:"do", area:"marin", neighborhood:"San Rafael, Marin",
+      hook:"36th annual free show — 200+ classic cars, hot rods, and customs rolling through downtown San Rafael.",
+      url:"https://www.sanrafaelmainstreet.com", photoId:"1501386761578-eac5c94b800a", emojiFallback:"🚗",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · noon–6pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"car show classic hot rod parade free marin san rafael" },
+    { id:60, name:"Exploratorium: Free Mother's Day Admission", cat:"do", area:"sf", neighborhood:"Embarcadero, SF",
+      hook:"Free all-day admission to the Bay's best hands-on science museum — moms get in free, bring the whole family.",
+      url:"https://www.exploratorium.edu", photoId:"1581089778245-3ce67677f718", emojiFallback:"🔬",
+      startDate:"2026-05-10", endDate:"2026-05-10",
+      when:"Sun May 10 · all day · Free", price:"Free", isFree:true, moods:["family","cheap","weekend"], keys:"exploratorium museum science free mothers day family kids" },
+    { id:61, name:"WildCare Family Nature Day", cat:"do", area:"marin", neighborhood:"Tiburon, Marin",
+      hook:"Naturalist-led hikes, owl pellet dissection, wildlife crafts, and live non-releasable animals — kid paradise.",
+      url:"https://www.discoverwildcare.org", photoId:"1507525428034-b723cf961d3e", emojiFallback:"🦉",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 10am–3pm", price:"$15", isFree:false, moods:["family","weekend","visitors"], keys:"wildlife nature kids family outdoor tiburon marin" },
+    { id:62, name:"Marine Science Sunday at Marine Mammal Center", cat:"do", area:"marin", neighborhood:"Sausalito, Marin",
+      hook:"Award-winning educators present on endangered species with multimedia and live animal encounters.",
+      url:"https://www.marinemammalcenter.org", photoId:"1502082553048-f009c37129b9", emojiFallback:"🦭",
+      startDate:"2026-05-10", endDate:"2026-05-10",
+      when:"Sun May 10 · 11am–3pm · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"marine mammals seals ocean science family sausalito marin" },
+    { id:63, name:"Stanford Powwow", cat:"do", area:"southbay", neighborhood:"Stanford University, Palo Alto",
+      hook:"One of the West Coast's largest Native American powwows — drumming, dancing, craft vendors, open to all.",
+      url:"https://powwow.stanford.edu", photoId:"GA45tnX6eW4", emojiFallback:"🪘",
+      startDate:"2026-05-08", endDate:"2026-05-10",
+      when:"Fri–Sun May 8–10 · Free", price:"Free", isFree:true, moods:["family","cheap","weekend","visitors"], keys:"powwow native american drumming dancing stanford" },
 
-    // ===== SHOP — new openings, pop-ups, sales, drops =====
+    // ===== NEW SF EATS — May 2026 openings & notable spots =====
+    { id:70, name:"Casa Sofia — Peruvian Debut", cat:"eat", area:"sf", neighborhood:"Mission Bay, SF",
+      hook:"Pisco sours, tiradito, and oven-roasted pork chop — SF's most-anticipated Peruvian opening hits Mission Bay.",
+      url:"https://www.casasofiasf.com", photoId:"sbcIAn3Xs44", emojiFallback:"🫙",
+      startDate:"2026-05-01", endDate:"2026-12-31",
+      when:"Now open · Tue–Sun from 5pm", price:"$$$", isFree:false, moods:["date","opening","visitors"], keys:"peruvian ceviche pisco latin mission bay oracle park opening" },
+    { id:71, name:"San Francisco Brewing Co. — Taproom Opens", cat:"eat", area:"sf", neighborhood:"Mission Bay, SF",
+      hook:"Massive new brewery and taproom in the former Seven Stills space — 20 house beers on tap opening week.",
+      url:"https://sfbrewing.com", photoId:"3Mcn6WhJVds", emojiFallback:"🍺",
+      startDate:"2026-05-01", endDate:"2026-12-31",
+      when:"Now open · daily noon–10pm", price:"$$", isFree:false, moods:["solo","date","opening","cheap"], keys:"brewery taproom craft beer mission bay opening" },
+    { id:72, name:"Claws of Mantis — Vietnamese Popup at Fat Cat", cat:"eat", area:"sf", neighborhood:"SoMa, SF",
+      hook:"Beloved Vietnamese popup takes over Fat Cat's kitchen — hand-rolled rice paper rolls, spicy broths, one month only.",
+      url:"https://www.fatcatsf.com", photoId:"0BhsN70JVA8", emojiFallback:"🍜",
+      startDate:"2026-05-01", endDate:"2026-05-31",
+      when:"Dinner nightly · 5:30–10pm", price:"$$", isFree:false, moods:["date","solo","opening"], keys:"vietnamese popup soma dinner rice paper rolls" },
+    { id:73, name:"Signal Coffee — New North Beach Location", cat:"eat", area:"sf", neighborhood:"North Beach, SF",
+      hook:"Alameda-born Signal Coffee opens its fifth location steps from Columbus Ave — brown-sugar cinnamon lattes and more.",
+      url:"https://signalcoffeeroasters.com", photoId:"EBLLdsLoJOs", emojiFallback:"☕",
+      startDate:"2026-05-06", endDate:"2026-12-31",
+      when:"Just opened · daily 6:30am–5pm", price:"$", isFree:false, moods:["solo","cheap","opening"], keys:"coffee cafe north beach fishermans wharf opening alameda" },
+    { id:74, name:"Madeleine — French Bistro Opens in NoPa", cat:"eat", area:"sf", neighborhood:"NoPa, SF",
+      hook:"A proper Paris-channeling bistro lands in NoPa — steak frites, onion soup, natural wine list, tight 32 seats.",
+      url:"https://madeleinesf.com", photoId:"1559339352-11d035aa65de", emojiFallback:"🥐",
+      startDate:"2026-05-04", endDate:"2026-12-31",
+      when:"Tue–Sat from 5:30pm", price:"$$$", isFree:false, moods:["date","opening"], keys:"french bistro nopa dinner wine opening new" },
+
+    // ===== NEW SF HEAR/SEE — concerts, events, cultural =====
+    { id:75, name:"Om Records 30th Anniversary Bash", cat:"hear", area:"sf", neighborhood:"Embarcadero, SF",
+      hook:"Three decades of SF dance music, celebrated free at Embarcadero Plaza — DJs, live sets, waterfront sunset.",
+      url:"https://omrecords.com", photoId:"PgynjbnECzk", emojiFallback:"🎧",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 2–8pm · Free", price:"Free", isFree:true, moods:["solo","latenight","cheap","weekend"], keys:"om records dj dance music embarcadero free waterfront concert" },
+    { id:76, name:"Carnaval San Francisco", cat:"hear", area:"sf", neighborhood:"Mission, SF",
+      hook:"SF's wildest weekend — two days of Latin, samba, jazz, and Caribbean floats in the Mission, parade Sunday morning.",
+      url:"https://www.carnavalsf.com", photoId:"RdqJMTQUmwA", emojiFallback:"💃",
+      startDate:"2026-05-23", endDate:"2026-05-24",
+      when:"Sat–Sun May 23–24 · Free", price:"Free", isFree:true, moods:["family","cheap","visitors","weekend"], keys:"carnaval carnival parade latin samba dance mission festival free" },
+    { id:77, name:"Valencia LIVE! — Free Block Party", cat:"hear", area:"sf", neighborhood:"Mission, SF",
+      hook:"Valencia St shuts down for a free outdoor party — live music, local vendors, al fresco dining between 16th & 19th.",
+      url:"https://valenciasf.com", photoId:"GA45tnX6eW4", emojiFallback:"🎶",
+      startDate:"2026-05-14", endDate:"2026-05-14",
+      when:"Thu May 14 · 4–9pm · Free", price:"Free", isFree:true, moods:["family","cheap","date","solo"], keys:"valencia street mission block party free live music outdoor" },
+    { id:78, name:"Exploratorium After Dark", cat:"hear", area:"sf", neighborhood:"Embarcadero, SF",
+      hook:"18+ Thursdays at the Exploratorium — science, cocktails, DJ sets, and exhibits with the tourist crowds gone.",
+      url:"https://www.exploratorium.edu/visit/calendar/after-dark", photoId:"1554907984-15263bfd63bd", emojiFallback:"🔬",
+      startDate:"2026-05-07", endDate:"2026-12-31",
+      when:"Every Thursday · 6–10pm · 18+", price:"$20", isFree:false, moods:["date","latenight","solo"], keys:"exploratorium adults science nightlife cocktails pier 15 thursday" },
+    { id:79, name:"836M Gallery: Cartoonists@836M", cat:"hear", area:"sf", neighborhood:"SoMa, SF",
+      hook:"Bay Area cartoonists respond to SF neighborhood history in real time — new prompts drop weekly at this SoMa gallery.",
+      url:"https://836m.org", photoId:"iIjsVCvYI0", emojiFallback:"🖍️",
+      startDate:"2026-05-01", endDate:"2026-05-31",
+      when:"Through May · Thu–Sat noon–6pm", price:"Free", isFree:true, moods:["solo","rainy","date"], keys:"gallery art cartoonists zine sf neighborhood history soma" },
+    { id:80, name:"SF City Guides: Free Neighborhood Walking Tours", cat:"hear", area:"sf", neighborhood:"Various, SF",
+      hook:"Volunteer-led tours of Castro, Chinatown, North Beach, Coit Tower, and more — free, no reservation, show up and walk.",
+      url:"https://www.sfcityguides.org", photoId:"1517457373958-b7bdd4587205", emojiFallback:"🗺️",
+      startDate:"2026-05-06", endDate:"2026-12-31",
+      when:"Daily · various times · Free", price:"Free", isFree:true, moods:["solo","family","visitors","cheap","weekend"], keys:"walking tour castro chinatown north beach coit tower free volunteer" },
+
+    // ===== NEW SF DO — experiences =====
+    { id:81, name:"Castro Night Market — Season 2 Debut", cat:"do", area:"sf", neighborhood:"Castro, SF",
+      hook:"18th Street closes for Castro's beloved night market — local vendors, live music, food stalls, after-dark energy.",
+      url:"https://castronightmarket.com", photoId:"A10y2Eq7OHY", emojiFallback:"🌙",
+      startDate:"2026-05-15", endDate:"2026-05-15",
+      when:"Fri May 15 · 5–10pm · Free", price:"Free", isFree:true, moods:["date","latenight","solo","opening"], keys:"castro night market 18th street vendors music shopping" },
+    { id:82, name:"Golden Gate Park Bison Paddock & Buffalo Walk", cat:"do", area:"sf", neighborhood:"Golden Gate Park, SF",
+      hook:"A secret most locals miss — a herd of American bison has roamed GGP since 1891. Best seen at dawn.",
+      url:"https://sfrecpark.org/parks-open-spaces/golden-gate-park/bison-paddock/", photoId:"1416879595882-3373a0480b5b", emojiFallback:"🦬",
+      startDate:"2026-05-06", endDate:"2026-12-31",
+      when:"Daily · dawn to dusk · Free", price:"Free", isFree:true, moods:["family","solo","visitors","cheap","weekend"], keys:"bison buffalo golden gate park wildlife free outdoor hidden gem" },
+    { id:83, name:"Fort Point Under the Bridge Tour", cat:"do", area:"sf", neighborhood:"Presidio, SF",
+      hook:"Walk directly under the Golden Gate Bridge's anchorage in a Civil War-era fort — free, vertiginous, and unforgettable.",
+      url:"https://www.nps.gov/fopo/index.htm", photoId:"1502082553048-f009c37129b9", emojiFallback:"🏰",
+      startDate:"2026-05-06", endDate:"2026-12-31",
+      when:"Fri–Sun · 10am–5pm · Free", price:"Free", isFree:true, moods:["visitors","family","solo","cheap","weekend"], keys:"fort point golden gate bridge presidio free national park history" },
+
+    // ===== BERKELEY — Sightglass opens =====
+    { id:84, name:"Sightglass Coffee — Berkeley Grand Opening", cat:"eat", area:"berkeley", neighborhood:"Downtown Berkeley",
+      hook:"SF's beloved SoMa coffee institution opens its first East Bay location — 1,700 sq ft on University Ave, May 7.",
+      url:"https://sightglasscoffee.com", photoId:"vUoEVm8Oejk", emojiFallback:"☕",
+      startDate:"2026-05-07", endDate:"2026-12-31",
+      when:"Just opened · daily 6:30am–5pm", price:"$", isFree:false, moods:["solo","cheap","opening"], keys:"sightglass coffee berkeley downtown university ave opening east bay cafe" },
+
+    // ===== SHOP — openings, pop-ups, markets, drops =====
     { id:46, name:"Folio Books: Spring Reading Series", cat:"shop", area:"sf", neighborhood:"Noe Valley, SF",
       hook:"Noe Valley's beloved indie bookshop launches a weekly local-author reading series this Friday.",
       url:"https://www.foliosf.com", photoId:"1521587760476-6c12a4b040da", emojiFallback:"📚",
-      hours:30, when:"Fri · 7pm · weekly", price:"Free entry", isFree:true, moods:["solo","opening","rainy","weekend"] },
+      startDate:"2026-05-08", endDate:"2026-08-31",
+      when:"Fri May 8 · 7pm · Free entry", price:"Free", isFree:true, moods:["solo","opening","rainy","weekend"], keys:"bookshop reading series authors noe valley independent" },
     { id:47, name:"ACGA Clay & Glass Festival", cat:"shop", area:"peninsula", neighborhood:"Palo Alto",
-      hook:"The Bay's largest ceramic & glass artisan show — 150+ Bay Area makers, one weekend.",
+      hook:"The Bay's largest ceramic & glass artisan show — 150+ makers, this weekend only.",
       url:"https://www.acga.net/", photoId:"1490717336632-7f2b1e4fa9b9", emojiFallback:"🏺",
-      hours:42, when:"Sat–Sun · 10am–5pm", price:"Free entry", isFree:true, moods:["solo","weekend","date","family"] },
+      startDate:"2026-05-09", endDate:"2026-05-10",
+      when:"Sat–Sun May 9–10 · 10am–5pm · Free entry", price:"Free", isFree:true, moods:["solo","weekend","date","family"], keys:"ceramics glass art festival makers palo alto" },
     { id:48, name:"Colpa Press: Risograph Open Studio", cat:"shop", area:"sf", neighborhood:"Mission, SF",
       hook:"SF's risograph publisher opens its studio Saturday — print a one-color zine, take it home.",
       url:"https://colpapress.com", photoId:"1542038784456-1ea8e935640e", emojiFallback:"🖨️",
-      hours:38, when:"Sat · 12–5pm", price:"$15", isFree:false, moods:["solo","opening","rainy","weekend"] },
-    { id:49, name:"Other Avenues Food Co-op", cat:"shop", area:"sf", neighborhood:"Outer Sunset, SF",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · 12–5pm", price:"$15", isFree:false, moods:["solo","opening","rainy","weekend"], keys:"risograph printing zine studio art mission" },
+    { id:49, name:"Other Avenues Food Co-op: Opening Event", cat:"shop", area:"sf", neighborhood:"Outer Sunset, SF",
       hook:"SF's worker-owned cooperative grocery — bulk bins, local farms, member discounts on opening day.",
       url:"https://www.otheravenuesfoodstore.coop/", photoId:"1488459716781-31db52582fe9", emojiFallback:"🥕",
-      hours:16, when:"Sat opening event · 9am", price:"$", isFree:false, moods:["family","weekend","cheap"] },
-    { id:50, name:"Alameda Antiques Faire (this Sunday)", cat:"shop", area:"eastbay", neighborhood:"Alameda Point, Alameda",
+      startDate:"2026-05-09", endDate:"2026-05-09",
+      when:"Sat May 9 · opening event · 9am", price:"$", isFree:false, moods:["family","weekend","cheap"], keys:"coop grocery organic local sunset community" },
+    { id:50, name:"Alameda Antiques Faire", cat:"shop", area:"eastbay", neighborhood:"Alameda Point, Alameda",
       hook:"First Sunday of the month — 800 vendors. Bring cash and a wagon.",
       url:"https://alamedapointantiquesfaire.com", photoId:"1583394293214-28ded15ee548", emojiFallback:"🪑",
-      hours:23, when:"This Sunday · 6am–3pm", price:"$15", isFree:false, moods:["family","cheap","visitors","weekend"] },
+      startDate:"2026-05-10", endDate:"2026-05-10",
+      when:"Sun May 10 · 6am–3pm", price:"$15", isFree:false, moods:["family","cheap","visitors","weekend"], keys:"antiques vintage flea market alameda" },
     { id:51, name:"Heath Ceramics Annual Seconds Sale", cat:"shop", area:"sf", neighborhood:"Mission, SF",
-      hook:"The once-a-year seconds sale — 30–60% off the iconic California stoneware.",
+      hook:"The once-a-year sale — 30–60% off the iconic California stoneware. This weekend only.",
       url:"https://www.heathceramics.com", photoId:"1490717336632-7f2b1e4fa9b9", emojiFallback:"🏺",
-      hours:13, when:"This weekend · 10–6", price:"$$", isFree:false, moods:["weekend","date","solo"] },
+      startDate:"2026-05-09", endDate:"2026-05-10",
+      when:"This weekend · 10am–6pm", price:"$$", isFree:false, moods:["weekend","date","solo"], keys:"heath ceramics pottery sale california stoneware" },
     { id:52, name:"Marine Layer Spring Drop", cat:"shop", area:"sf", neighborhood:"Hayes Valley, SF",
-      hook:"New spring collection lands today — small-batch dye colors and softer than last year's softest.",
+      hook:"New spring collection lands this week — small-batch dye colors, softer than ever.",
       url:"https://www.marinelayer.com", photoId:"1521587760476-6c12a4b040da", emojiFallback:"👕",
-      hours:8, when:"In stores now", price:"$$", isFree:false, moods:["solo","date","weekend"] },
+      startDate:"2026-05-06", endDate:"2026-06-30",
+      when:"In stores now", price:"$$", isFree:false, moods:["solo","date","weekend"], keys:"clothing apparel hayes valley sf spring" },
     { id:53, name:"Pleasanton Farmers' Market: Opening Day", cat:"shop", area:"eastbay", neighborhood:"Downtown Pleasanton",
       hook:"California's longest-running outdoor farmers' market kicks off its 39th season this Saturday.",
       url:"https://www.pcfma.org/markets/pleasanton/", photoId:"1488459716781-31db52582fe9", emojiFallback:"🍅",
-      hours:32, when:"Sat · 9am–1pm", price:"Free", isFree:true, moods:["family","cheap","weekend"] }
+      startDate:"2026-05-09", endDate:"2026-11-21",
+      when:"Sat May 9 · 9am–1pm", price:"Free", isFree:true, moods:["family","cheap","weekend"], keys:"farmers market vegetables produce pleasanton opening" },
+    { id:64, name:"Small Business Boogie — Ferry Building", cat:"shop", area:"sf", neighborhood:"Embarcadero, SF",
+      hook:"Pop-up marketplace celebrating local small businesses — goods, tastings, and live music Sunday.",
+      url:"https://www.ferrybuildingmarketplace.com", photoId:"1583394293214-28ded15ee548", emojiFallback:"🎪",
+      startDate:"2026-05-10", endDate:"2026-05-10",
+      when:"Sun May 10 · 10am–4pm · Free", price:"Free", isFree:true, moods:["family","weekend","cheap"], keys:"small business popup ferry building embarcadero sunday" },
   ];
+
+  // ==========================================================
+  // DATE HELPERS — real-time date-aware logic
+  // ==========================================================
+  const _NOW = new Date();
+  const _TODAY_STR = _NOW.toISOString().slice(0,10);
+
+  // Dynamic hero date
+  (function() {
+    const el = document.getElementById('heroDate');
+    if (el) {
+      el.textContent = _NOW.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    }
+  })();
+
+  // Compute weekend (Fri–Sun of current week)
+  function _getWeekend() {
+    const d = new Date(_NOW);
+    const day = d.getDay(); // 0=Sun,1=Mon,...5=Fri,6=Sat
+    let daysToFri = (5 - day + 7) % 7;
+    if (day === 0) daysToFri = 5; // Sunday: next Friday is 5 days away
+    const fri = new Date(d); fri.setDate(d.getDate() + daysToFri);
+    const sun = new Date(fri); sun.setDate(fri.getDate() + 2);
+    fri.setHours(0,0,0,0); sun.setHours(23,59,59,999);
+    return { fri, sun, friStr: fri.toISOString().slice(0,10), sunStr: sun.toISOString().slice(0,10) };
+  }
+  const _WKD = _getWeekend();
+
+  // Upcoming holidays — add known Bay Area relevant ones here
+  const _HOLIDAYS = [
+    { name:"Mother's Day", date:"2026-05-10", keywords:["mother","family","mom"] },
+    { name:"Memorial Day", date:"2026-05-25", keywords:["memorial","free","outdoor"] },
+    { name:"Juneteenth", date:"2026-06-19", keywords:["juneteenth","oakland","community"] },
+    { name:"4th of July", date:"2026-07-04", keywords:["fourth","fireworks","outdoor"] },
+    { name:"Labor Day", date:"2026-09-07", keywords:["labor","free","outdoor"] },
+  ];
+
+  // Compute real-time fields for each item
+  ITEMS.forEach(item => {
+    const start = new Date(item.startDate + 'T00:00:00');
+    const endStr = item.endDate || item.startDate;
+    const end = new Date(endStr + 'T23:59:59');
+    item._start = start;
+    item._end = end;
+    item._isActive = end >= _NOW;
+    // hours since start (negative = upcoming/future)
+    item.hours = (_NOW - start) / 3600000;
+    // Is this a physically outdoor event?
+    item._isOutdoor = !!(item.moods.includes('weekend') || item.keys.includes('outdoor') || item.keys.includes('beach') || item.keys.includes('park') || item.keys.includes('garden') || item.keys.includes('coast'));
+  });
+
+  function _dateInRange(item) {
+    const s = item.startDate;
+    const e = item.endDate || item.startDate;
+    return s <= _TODAY_STR && e >= _TODAY_STR;
+  }
+  function _isThisWeekend(item) {
+    const s = item.startDate;
+    const e = item.endDate || item.startDate;
+    return s <= _WKD.sunStr && e >= _WKD.friStr;
+  }
+  function _isFresh(item) {
+    // Added/opening within last 3 days
+    return item.hours >= -72 && item.hours <= 72;
+  }
+
+
 
   // ==========================================================
   // PHOTO URL — specific Unsplash photo IDs (stable CDN URLs)
@@ -1804,18 +2160,141 @@
     return `https://images.unsplash.com/photo-${item.photoId}?auto=format&fit=crop&w=${w}&q=80`;
   }
 
-  // Pre-set the featured card photo (lantern festival vibe).
-  // If it fails, swap to a vibrant gradient that matches the theme.
-  const featuredPhotoId = "1545006398-2cf47a2b1b46";
-  const featuredPhotoUrl = `https://images.unsplash.com/photo-${featuredPhotoId}?auto=format&fit=crop&w=1600&q=80`;
-  const fpEl = document.getElementById('featuredPhoto');
-  const fpImg = new Image();
-  fpImg.onload = () => { fpEl.style.backgroundImage = `url('${featuredPhotoUrl}')`; };
-  fpImg.onerror = () => {
-    fpEl.style.background = 'linear-gradient(135deg, #FF5A4D 0%, #FFC93C 50%, #2DC4B0 100%)';
-    fpEl.innerHTML = '<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 140px; opacity: 0.55;">🎐</div>';
-  };
-  fpImg.src = featuredPhotoUrl;
+  // Dynamic featured card — pick the weekend's most exciting event
+  function setupFeaturedCard() {
+    const candidates = ITEMS.filter(i => i._isActive && (_isThisWeekend(i) || _dateInRange(i)))
+      .sort((a,b) => {
+        // Prefer free, family, outdoor events for the feature
+        const scoreA = (a.isFree ? 2 : 0) + (a.moods.includes('family') ? 1 : 0) + (a._isOutdoor ? 1 : 0);
+        const scoreB = (b.isFree ? 2 : 0) + (b.moods.includes('family') ? 1 : 0) + (b._isOutdoor ? 1 : 0);
+        return scoreB - scoreA || a._start - b._start;
+      });
+    const feat = candidates[0] || ITEMS[0];
+    if (!feat) return;
+
+    const fpEl = document.getElementById('featuredPhoto');
+    const titleEl = document.getElementById('featuredTitle');
+    const hookEl = document.getElementById('featuredHook');
+    const metaEl = document.getElementById('featuredMeta');
+    const pillEl = document.getElementById('featuredPill');
+    const cardEl = document.getElementById('featuredCard');
+
+    if (titleEl) titleEl.textContent = feat.name;
+    if (hookEl) hookEl.textContent = feat.hook;
+    if (pillEl) {
+      const isTonight = _dateInRange(feat);
+      pillEl.textContent = isTonight ? '⭐ Tonight\'s pick' : '⭐ This weekend\'s pick';
+    }
+    if (metaEl) {
+      metaEl.innerHTML = `
+        <span>📍 ${feat.neighborhood}</span>
+        <span>🕖 ${feat.when}</span>
+        <span>${feat.isFree ? '🆓 Free entry' : feat.price}</span>
+        ${feat.moods.includes('family') ? '<span>👨\u200d👩\u200d👧 All ages</span>' : ''}
+      `;
+    }
+    if (cardEl) {
+      cardEl.onclick = () => window.open(feat.url || '#', '_blank', 'noopener');
+      cardEl.style.cursor = 'pointer';
+    }
+
+    const fpUrl = `https://images.unsplash.com/photo-${feat.photoId}?auto=format&fit=crop&w=1600&q=80`;
+    if (fpEl) {
+      const fpImg = new Image();
+      fpImg.onload = () => { fpEl.style.backgroundImage = `url('${fpUrl}')`; };
+      fpImg.onerror = () => {
+        fpEl.style.background = 'linear-gradient(135deg, #FF5A4D 0%, #FFC93C 50%, #2DC4B0 100%)';
+        fpEl.innerHTML = `<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 140px; opacity: 0.55;">${feat.emojiFallback}</div>`;
+      };
+      fpImg.src = fpUrl;
+    }
+  }
+
+  // ==========================================================
+  // WEATHER WIDGET — Open-Meteo API (free, no key required)
+  // SF Bay Area: lat 37.7749, lon -122.4194
+  // ==========================================================
+  function wmoIcon(code) {
+    if (code === 0) return '☀️';
+    if (code <= 2) return '⛅';
+    if (code === 3) return '☁️';
+    if (code <= 48) return '🌫️';
+    if (code <= 55) return '🌦️';
+    if (code <= 65) return '🌧️';
+    if (code <= 77) return '❄️';
+    if (code <= 82) return '🌦️';
+    if (code <= 86) return '🌨️';
+    return '⛈️';
+  }
+  function wmoDesc(code) {
+    if (code === 0) return 'Clear';
+    if (code <= 2) return 'Partly cloudy';
+    if (code === 3) return 'Overcast';
+    if (code <= 48) return 'Foggy';
+    if (code <= 55) return 'Drizzle';
+    if (code <= 65) return 'Rainy';
+    if (code <= 77) return 'Snow';
+    if (code <= 82) return 'Showers';
+    return 'Stormy';
+  }
+  async function loadWeather() {
+    try {
+      const url = 'https://api.open-meteo.com/v1/forecast' +
+        '?latitude=37.7749&longitude=-122.4194' +
+        '&current=temperature_2m,weather_code,wind_speed_10m,apparent_temperature' +
+        '&daily=weather_code,temperature_2m_max,temperature_2m_min' +
+        '&temperature_unit=fahrenheit' +
+        '&wind_speed_unit=mph' +
+        '&timezone=America%2FLos_Angeles' +
+        '&forecast_days=7';
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('Weather fetch failed');
+      const data = await resp.json();
+
+      // Current conditions
+      const curr = data.current;
+      const temp = Math.round(curr.temperature_2m);
+      const feels = Math.round(curr.apparent_temperature);
+      const icon = wmoIcon(curr.weather_code);
+      const desc = wmoDesc(curr.weather_code);
+      const wind = Math.round(curr.wind_speed_10m);
+      const nowEl = document.getElementById('weatherNow');
+      if (nowEl) {
+        nowEl.innerHTML = `${icon} <strong>${temp}°F</strong> <span style="color:var(--ink-soft);font-weight:400;">${desc} · SF Bay</span>`;
+        nowEl.title = `Feels like ${feels}°F · Wind ${wind} mph`;
+      }
+
+      // 7-day mini forecast
+      const days = data.daily;
+      const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const todayIdx = new Date().getDay();
+      let weekHtml = '';
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(days.time[i] + 'T12:00:00');
+        const name = i === 0 ? 'Today' : dayNames[d.getDay()];
+        const hi = Math.round(days.temperature_2m_max[i]);
+        const lo = Math.round(days.temperature_2m_min[i]);
+        const ic = wmoIcon(days.weather_code[i]);
+        const isWkd = d.getDay() === 5 || d.getDay() === 6 || d.getDay() === 0;
+        weekHtml += `
+          <span class="weather-day${isWkd ? ' wkd' : ''}" title="${wmoDesc(days.weather_code[i])} · ${lo}°–${hi}°F">
+            <span class="wd-name">${name}</span>
+            <span class="wd-icon">${ic}</span>
+            <span class="wd-temp">${hi}°</span>
+            <span class="wd-lohi">${lo}°</span>
+          </span>`;
+      }
+      const weekEl = document.getElementById('weatherWeek');
+      if (weekEl) weekEl.innerHTML = weekHtml;
+
+    } catch(e) {
+      const nowEl = document.getElementById('weatherNow');
+      if (nowEl) nowEl.innerHTML = '🌤️ <span style="color:var(--ink-soft);">Bay Area</span>';
+    }
+  }
+  loadWeather();
+
+  setupFeaturedCard();
 
   // ==========================================================
   // FILTER STATE
@@ -1824,13 +2303,15 @@
   let searchQ = '';
 
   function quickFilter(item) {
+    if (!item._isActive) return false; // auto-expire past events
     if (activeQuick === 'all') return true;
-    if (activeQuick === 'today') return item.hours < 24;
-    if (activeQuick === 'weekend') return item.moods.includes('weekend') || item.moods.includes('today');
+    if (activeQuick === 'today') return _dateInRange(item);
+    if (activeQuick === 'weekend') return _isThisWeekend(item);
     if (activeQuick === 'free') return item.isFree;
     if (activeQuick === 'family') return item.moods.includes('family');
+    if (activeQuick === 'outdoor') return item._isOutdoor || item.moods.includes('family');
     if (activeQuick === 'latenight') return item.moods.includes('latenight');
-    if (activeQuick === 'opening') return item.moods.includes('opening') || item.hours <= 48;
+    if (activeQuick === 'opening') return item.moods.includes('opening') || _isFresh(item);
     if (activeQuick === 'cheap') return item.moods.includes('cheap') || item.isFree || item.price === '$' || (item.price && item.price.startsWith('$') && parseInt(item.price.slice(1)) <= 20);
     return true;
   }
@@ -1840,19 +2321,28 @@
     return item.name.toLowerCase().includes(q)
       || item.hook.toLowerCase().includes(q)
       || item.neighborhood.toLowerCase().includes(q)
-      || item.keys.toLowerCase().includes(q);
+      || (item.keys && item.keys.toLowerCase().includes(q));
   }
 
   // ==========================================================
   // RENDER CARD
   // ==========================================================
-  function freshLabel(h) {
-    if (h < 1) return 'Just added';
-    if (h < 6) return Math.round(h) + 'h ago';
+  function freshLabel(item) {
+    if (!item || item.hours === undefined) return 'Coming up';
+    const h = item.hours;
+    if (h < -168) {
+      // More than a week away
+      const d = item._start;
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    }
+    if (h < -48) return 'This week';
+    if (h < -24) return 'This weekend';
+    if (h < 0) return 'Tomorrow';
+    if (h < 6) return 'Happening now';
     if (h < 24) return 'Today';
-    if (h < 48) return 'Yesterday';
-    if (h < 96) return Math.round(h/24) + 'd ago';
-    return 'This week';
+    if (h < 48) return 'Started yesterday';
+    if (h < 96) return 'Ongoing';
+    return 'On now';
   }
 
   // Each event has its own direct URL to the venue/event page. We always
@@ -1864,7 +2354,7 @@
   }
 
   function cardHTML(item) {
-    const isFresh = item.hours <= 48;
+    const isFresh = _isFresh(item);
     const url = photoUrl(item);
     const link = eventInfoUrl(item);
     return `
@@ -1878,7 +2368,7 @@
               <span class="pill cat-${item.cat}">${catLabel(item.cat)}</span>
               <span class="pill ${item.isFree ? 'free' : 'price'}">${item.isFree ? '🆓 Free' : item.price}</span>
             </div>
-            ${isFresh ? `<div style="position: absolute; bottom: 12px; left: 12px; z-index: 3;"><span class="pill fresh">${freshLabel(item.hours)}</span></div>` : ''}
+            ${isFresh ? `<div style="position: absolute; bottom: 12px; left: 12px; z-index: 3;"><span class="pill fresh">${freshLabel(item)}</span></div>` : ''}
           </div>
           <div class="card-body">
             <h3 class="card-title">${item.name}</h3>
@@ -1912,11 +2402,42 @@
   // RENDER GRIDS BY CATEGORY
   // ==========================================================
   function renderAll() {
+    // Weekend Spotlight section
+    const wkdItems = ITEMS.filter(i => i._isActive && _isThisWeekend(i) && searchMatch(i))
+      .sort((a,b) => a._start - b._start);
+    const wkdSection = document.getElementById('sec-weekend');
+    const wkdGrid = document.getElementById('grid-weekend');
+    const wkdCount = document.getElementById('count-weekend');
+    if (wkdSection && wkdGrid) {
+      if (activeQuick === 'all' || activeQuick === 'weekend') {
+        wkdSection.style.display = '';
+        wkdGrid.innerHTML = wkdItems.map(cardHTML).join('');
+        if (wkdCount) wkdCount.innerHTML = `<strong>${wkdItems.length}</strong> weekend picks`;
+      } else {
+        wkdSection.style.display = 'none';
+      }
+    }
+    // Family & Groups section
+    const famItems = ITEMS.filter(i => i._isActive && i.moods.includes('family') && searchMatch(i))
+      .sort((a,b) => a._start - b._start);
+    const famSection = document.getElementById('sec-family');
+    const famGrid = document.getElementById('grid-family');
+    const famCount = document.getElementById('count-family');
+    if (famSection && famGrid) {
+      if (activeQuick === 'all' || activeQuick === 'family') {
+        famSection.style.display = '';
+        famGrid.innerHTML = famItems.map(cardHTML).join('');
+        if (famCount) famCount.innerHTML = `<strong>${famItems.length}</strong> family picks`;
+      } else {
+        famSection.style.display = 'none';
+      }
+    }
+
     ['eat','hear','do','shop'].forEach(cat => {
       const grid = document.querySelector(`.grid[data-cat="${cat}"]`);
       if (!grid) return;
-      const items = ITEMS.filter(i => i.cat === cat && quickFilter(i) && searchMatch(i))
-        .sort((a,b) => a.hours - b.hours);
+      const items = ITEMS.filter(i => i._isActive && i.cat === cat && quickFilter(i) && searchMatch(i))
+        .sort((a,b) => a._start - b._start);
       const countEl = document.querySelector(`#count-${cat} strong`);
       if (countEl) countEl.textContent = items.length;
       if (items.length === 0) {
@@ -1973,8 +2494,8 @@
   function renderNeighborhoods() {
     const grid = document.getElementById('nbhdGrid');
     grid.innerHTML = NEIGHBORHOODS.map(n => {
-      const items = ITEMS.filter(i => i.area === n.area);
-      const fresh = items.filter(i => i.hours <= 48).length;
+      const items = ITEMS.filter(i => i.area === n.area && i._isActive);
+      const fresh = items.filter(i => _isFresh(i)).length;
       return `
         <button class="nbhd-card" data-area="${n.area}">
           <div class="nbhd-emoji">${n.emoji}</div>
@@ -1998,7 +2519,7 @@
   function openNeighborhoodDetail(area) {
     const n = NEIGHBORHOODS.find(x => x.area === area);
     if (!n) return;
-    const items = ITEMS.filter(i => i.area === area).sort((a,b) => a.hours - b.hours);
+    const items = ITEMS.filter(i => i.area === area && i._isActive).sort((a,b) => a._start - b._start);
 
     // Group by exact neighborhood string
     const groups = {};
@@ -2009,15 +2530,15 @@
     });
     const groupNames = Object.keys(groups).sort((a,b) => {
       // Order groups by freshest item in each
-      const aMin = Math.min(...groups[a].map(x => x.hours));
-      const bMin = Math.min(...groups[b].map(x => x.hours));
+      const aMin = Math.min(...groups[a].map(x => x._start.getTime()));
+      const bMin = Math.min(...groups[b].map(x => x._start.getTime()));
       return aMin - bMin;
     });
 
     // Header
     document.getElementById('ndEmoji').textContent = n.emoji;
     document.getElementById('ndTitle').textContent = n.name;
-    const fresh = items.filter(i => i.hours <= 48).length;
+    const fresh = items.filter(i => _isFresh(i)).length;
     const summary = `<strong>${items.length}</strong> ${items.length === 1 ? 'event' : 'events'} happening across <strong>${groupNames.length}</strong> ${groupNames.length === 1 ? 'neighborhood' : 'neighborhoods'}${fresh ? ` · <strong style="color: var(--eat);">${fresh} just dropped</strong>` : ''}`;
     document.getElementById('ndSummary').innerHTML = summary;
     document.getElementById('ndSubAreas').textContent = n.subAreas;
@@ -2033,7 +2554,7 @@
     } else {
       groupsEl.innerHTML = groupNames.map(g => {
         const groupItems = groups[g];
-        const fresh = groupItems.filter(x => x.hours <= 48).length;
+        const fresh = groupItems.filter(x => _isFresh(x)).length;
         return `
           <div class="nbhd-group">
             <div class="nbhd-group-head">
@@ -2049,7 +2570,7 @@
     }
 
     // Hide main category sections, show the detail
-    document.querySelectorAll('section[id^="sec-"], #nbhd, .featured-section, .live-section, .newsletter, .hero, footer').forEach(s => {
+    document.querySelectorAll('section[id^="sec-"], #nbhd, .featured-section, .live-section, .newsletter, .hero, footer, #sec-weekend, #sec-family').forEach(s => {
       s.dataset.prevDisplay = s.style.display || '';
       s.style.display = 'none';
     });
@@ -2059,7 +2580,7 @@
   }
 
   function closeNeighborhoodDetail() {
-    document.querySelectorAll('section[id^="sec-"], #nbhd, .featured-section, .live-section, .newsletter, .hero, footer').forEach(s => {
+    document.querySelectorAll('section[id^="sec-"], #nbhd, .featured-section, .live-section, .newsletter, .hero, footer, #sec-weekend, #sec-family').forEach(s => {
       s.style.display = s.dataset.prevDisplay || '';
     });
     document.getElementById('nbhdDetail').classList.remove('active');
@@ -2070,13 +2591,13 @@
   // LIVE FEED
   // ==========================================================
   const stream = document.getElementById('liveStream');
-  const sortedFresh = ITEMS.slice().sort((a,b) => a.hours - b.hours);
+  const sortedFresh = ITEMS.filter(i => i._isActive).slice().sort((a,b) => a._start - b._start);
   let liveIdx = 0;
   function pushLive() {
     const item = sortedFresh[liveIdx % sortedFresh.length];
     liveIdx++;
-    const time = new Date();
-    time.setHours(time.getHours() - item.hours);
+    // use item start date for live feed time display
+    const time = item._start;
     const t = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
     const row = document.createElement('a');
